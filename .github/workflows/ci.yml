@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # Nilai palsu: build tidak menghubungi Supabase, hanya butuh variabelnya ada.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm run build
+      - name: Pastikan tidak ada secret key Supabase di repo
+        run: |
+          if git grep -nE "sb_secret_[A-Za-z0-9]{8,}"; then
+            echo "Ditemukan secret key. Hapus dari repo dan cabut key itu di dashboard Supabase."
+            exit 1
+          fi
