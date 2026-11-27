@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- foto dari Supabase Storage, sengaja <img> (bukan optimasi gambar Vercel) */
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   useEffect,

@@ -12,9 +12,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Safinah One · Live Monitoring",
+  title: "Safinah One - Live Monitoring",
   description:
-    "Live position, speed, mission progress and imaging results of the Safinah One ASV (Gamantaray UGM) at KKI 2027.",
+    "Live position, speed, mission progress, and imaging results of the Safinah One ASV (Gamantaray UGM) at KKI 2027.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -4,10 +4,10 @@ import { formatDuration } from "@/lib/format";
 import { useLive } from "@/lib/live/store";
 import { useNow } from "@/lib/live/useNow";
 
-const MAX_RUN_MS = 20 * 60 * 1000;
+const MAX_RUN_MS = 10 * 60 * 1000;
 
 // Waktu tempuh sejak fase start aktif, berhenti saat finish selesai atau run berakhir.
-// Merah bila melewati batas 20 menit.
+// Merah bila melewati batas 10 menit.
 export function RunTimer() {
   const now = useNow();
   const events = useLive((s) => s.events);

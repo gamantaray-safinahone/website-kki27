@@ -8,8 +8,6 @@ const TONE_CLASSES: Record<StatTone, string> = {
   critical: "text-red-400 light:text-red-700",
 };
 
-// Satu metrik gaya 2026: label kecil sage, nilai besar kapur.
-// Ukurannya padat di layar laptop dan membesar di layar tinggi (TV panitia).
 export function StatTile({
   label,
   value,

@@ -215,7 +215,7 @@ Desktop (≥ 1280px / `xl`), satu layar penuh tanpa scroll:
     (`text-[18px] font-black text-black/30`, contoh "C3"). Lintasan 2 memakai urutan huruf terbalik.
   - Marker: buoy merah/hijau 8px (PNG), buoy docking biru 10px (SVG), Start 34px,
     objek Image Surface/Underwater 10px, pin edit center 24px (`ping.svg`).
-  - Kapal: `kapalasli3.png` 50×40, diputar sesuai CoG.
+  - Kapal: `kapalasli.png` 50×40, diputar sesuai CoG.
   - Jejak: polyline **merah putus-putus** (weight 1, dash `2,2`).
   - Popup marker: "Start", "Image Surface", "Image Underwater", "Pelampung {color}".
   - Admin bisa menggeser (drag) marker; perubahan langsung disimpan.
@@ -266,7 +266,7 @@ Desktop (≥ 1280px / `xl`), satu layar penuh tanpa scroll:
   sebagai teks putih di atas hijau dengan kontras ±3.3:1 (tidak lolos WCAG AA untuk teks normal).
 
 ## 9. Aset (`public/`)
-`logo.png` (logo tim), `kapalasli3.png` (ikon kapal), `merah.png`/`hijau.png` (buoy),
+`logo.png` (logo tim), `kapalasli.png` (ikon kapal), `merah.png`/`hijau.png` (buoy),
 `bulat_biru.svg` (buoy docking), `start.png`, `atas.jpeg`/`bawah.png` (objek imaging),
 `ping.svg` (pin edit center), `src/app/icon.png` (favicon). Ikon UI memakai **lucide-react**.
 

@@ -12,7 +12,7 @@ import { StatTile, type StatTone } from "./StatTile";
 const BATTERY_WARNING_PCT = 30;
 const BATTERY_CRITICAL_PCT = 15;
 
-// Ambang baterai. Ditampilkan dengan teks juga, bukan hanya warna.
+// Ambang baterai
 function batteryState(pct: number | null | undefined): {
   tone: StatTone;
   text: string;
@@ -24,7 +24,7 @@ function batteryState(pct: number | null | undefined): {
   return { tone: "normal", text: "OK" };
 }
 
-// Navigation Data gaya 2026: grid bergaris, ditambah Heading dan detail baterai.
+// Navigation Data 
 export function TelemetryPanel() {
   const t = useLive((s) => s.latest);
 
@@ -40,7 +40,6 @@ export function TelemetryPanel() {
   const amps =
     t?.battery_a != null ? `${formatNumber(t.battery_a, 1)} A` : null;
 
-  // Sel kiri diberi garis kanan; semua sel diberi garis bawah.
   const cell = "border-b border-border";
   const left = `${cell} border-r`;
 

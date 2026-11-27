@@ -1,6 +1,3 @@
-// Format angka dan waktu untuk tampilan. Semua teks UI berbahasa Inggris.
-
-// Jam lomba selalu WIB, apa pun zona waktu perangkat penonton.
 const WIB_TIME_ZONE = "Asia/Jakarta";
 
 const wibTime = new Intl.DateTimeFormat("en-GB", {

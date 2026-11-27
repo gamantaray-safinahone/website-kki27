@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-// Panel standar dashboard (gaya KKI 2026): sudut tajam, garis ganda, ikon judul lime.
+// Panel standar dashboard
 export function Card({
   title,
   icon: Icon,

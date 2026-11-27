@@ -1,6 +1,5 @@
 // Semua query Supabase ada di file ini. Komponen tidak memanggil Supabase langsung.
 import type { SupabaseClient } from "@supabase/supabase-js";
-
 import type { Database, Tables } from "@/types/database.types";
 
 export type Supabase = SupabaseClient<Database>;
@@ -55,8 +54,7 @@ export async function fetchRunSnapshot(
   supabase: Supabase,
   runId: string,
 ): Promise<RunSnapshot> {
-  // id terbesar diambil PALING DULU. Baris yang masuk setelahnya akan diambil lagi
-  // oleh catch-up; duplikatnya dibuang store berdasarkan waktu sampel (t).
+  // id terbesar diambil PALING DULU. Baris yang masuk setelahnya akan diambil lagi oleh catch-up; duplikatnya dibuang store berdasarkan waktu sampel (t).
   const maxId = await supabase
     .from("telemetry")
     .select("id")
@@ -137,8 +135,7 @@ export async function fetchEventsAfter(
   return data;
 }
 
-// Foto per run jumlahnya kecil, jadi diambil ulang semua (sekaligus menangkap
-// perubahan `hidden` dari admin).
+// Foto per run jumlahnya kecil, jadi diambil ulang semua (sekaligus menangkap perubahan `hidden` dari admin).
 export async function fetchCaptures(
   supabase: Supabase,
   runId: string,

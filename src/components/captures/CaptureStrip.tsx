@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- thumbnail dari Supabase Storage, sengaja <img> (bukan optimasi gambar Vercel) */
 import { formatWibTime } from "@/lib/format";
 import { capturePublicUrl, type Capture } from "@/lib/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";

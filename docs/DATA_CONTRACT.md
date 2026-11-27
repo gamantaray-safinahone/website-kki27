@@ -20,7 +20,7 @@ Kunci idempoten membuat kiriman ulang (retry) aman: baris yang sama tidak akan t
 
 - Pakai HTTP biasa dengan `requests` (paket apt `python3-requests`), bukan supabase-py, supaya tidak perlu pip di Python sistem ROS.
 - Satu secret key per perangkat: `nuc` dan `pi`. Buat di Supabase Dashboard > Project Settings > API Keys > Secret keys. Bila satu bocor, cabut key itu saja.
-- Simpan di `~/.config/safinah/web.env` dengan izin `600`, berisi `SUPABASE_URL` dan `SUPABASE_SECRET_KEY`. Jangan ditaruh di repo, launch file, atau log.
+- Simpan di `.env.local` di root workspace `ros-kki27` (sudah di-ignore git) atau di `~/.config/safinah/web.env`, dengan izin `600`, berisi `SUPABASE_URL` dan `SUPABASE_SECRET_KEY`. Jangan di-commit, ditaruh di launch file, atau ditulis ke log.
 - Header setiap request: `apikey` dan `Authorization: Bearer` berisi secret key yang sama (meniru supabase-js), `Content-Type: application/json`, `Prefer: resolution=ignore-duplicates,return=minimal`. Cek sekali dengan curl di awal integrasi.
 
 | Aksi | Request | Sukses |
@@ -35,10 +35,10 @@ Kunci idempoten membuat kiriman ulang (retry) aman: baris yang sama tidak akan t
 ## Siklus run
 
 1. Operator meluncurkan misi dengan parameter `lintasan:=A` (atau `B`). Saat state machine masuk `preparation`, ia memanggil service `/web_bridge/start_run`.
-2. Bridge membuat UUID v4, menyimpannya di `~/.safinah/current_run.json`, mengirim baris `runs` (`status: live`, `source: boat`), lalu menerbitkan `/safinah/run` dengan QoS transient local untuk Pi.
+2. Bridge membuat UUID v4, menyimpannya di `~/.safinah/current_run.json`, mengirim baris `runs` (`status: live`, `source: boat`), lalu menerbitkan `/safinah/run` dengan QoS transient local untuk Pi. Isinya string kosong bila tidak ada run.
 3. Telemetri dikirim sejak `preparation`, supaya juri bisa melihat GPS lock di dermaga.
-4. Finish: run diakhiri dengan `status: ended`, `end_reason: finish`. Retry dari start: run lama `status: aborted`, `end_reason: retry`, lalu `start_run` lagi. Run yang gagal karena alasan lain: `status: aborted` dengan `end_reason` singkat.
-5. Bila NUC restart di tengah run, bridge melanjutkan run dari file selama statusnya masih `live` dan umurnya di bawah 25 menit.
+4. Finish: run diakhiri dengan `status: ended`, `end_reason: finish`. Retry dari start: run lama `status: aborted`, `end_reason: retry`, lalu `start_run` lagi. Run yang gagal karena alasan lain: `status: aborted` dengan `end_reason` singkat, misalnya `manual` dari `ros2 service call /web_bridge/abort_run std_srvs/srv/Trigger` di NUC.
+5. Bila NUC restart di tengah run, bridge melanjutkan run dari file selama statusnya masih `live` dan umurnya di bawah 25 menit. Bila lebih tua, run itu ditutup `status: aborted`, `end_reason: timeout`.
 
 Contoh baris run:
 

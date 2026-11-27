@@ -8,8 +8,7 @@ import type { Course } from "@/lib/queries";
 
 const LABEL_PANE = "gridLabels";
 
-// Grid area lomba (ukuran dari tabel courses, default 6 x 6 sel @ 5 m) beserta
-// label sel di tengahnya ("C3"). Digambar hanya bila koordinat pusat sudah diisi.
+// Grid area lomba (ukuran dari tabel courses, default 6 x 6 sel @ 5 m)
 export function GridLayer({
   map,
   course,
@@ -21,7 +20,6 @@ export function GridLayer({
     if (!course || course.center_lat == null || course.center_lon == null)
       return;
 
-    // Label di pane sendiri: di atas kotak imaging, di bawah buoy dan kapal.
     if (!map.getPane(LABEL_PANE)) {
       const pane = map.createPane(LABEL_PANE);
       pane.style.zIndex = "450";

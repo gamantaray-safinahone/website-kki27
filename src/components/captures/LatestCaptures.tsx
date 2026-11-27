@@ -17,7 +17,7 @@ type Viewer = { slot: Slot; withSurface: boolean; id: number };
 const newestFirst = (a: Capture, b: Capture) =>
   Date.parse(b.captured_at) - Date.parse(a.captured_at) || b.id - a.id;
 
-// Slot cadangan bila baris lintasan belum dimuat (sama dengan isi awal migrasi).
+// Slot cadangan bila baris lintasan belum dimuat
 const FALLBACK_SLOTS: Record<string, Slot[]> = {
   A: ["SR", "UL"],
   B: ["SL", "UR"],
@@ -26,8 +26,7 @@ const FALLBACK_SLOTS: Record<string, Slot[]> = {
 // Camera Feeds: 3 panel untuk lintasan yang sedang dilihat (sama dengan peta).
 // Urutan dari atas: slot surface lintasan, slot surface lainnya, slot underwater
 // lintasan beserta foto permukaannya. A = SR, SL, UL; B = SL, SR, UR.
-// Urutan diturunkan dari awalan S/U di courses.imaging_slots, jadi urutan isi
-// kolom itu di database tidak berpengaruh. Slot milik lintasan diberi border lime.
+// Border: surface lintasan hijau; surface lainnya dan underwater biru.
 export function LatestCaptures() {
   const captures = useLive((s) => s.captures);
   const [lintasan] = useViewLintasan();
@@ -76,7 +75,7 @@ export function LatestCaptures() {
             code={slot}
             label={SLOT_LABELS[slot]}
             captures={bySlot[slot]}
-            highlight={usedSlots.includes(slot)}
+            border={slot === surface ? "green" : "blue"}
             withSurface={withSurface}
             onOpen={(id) => setViewer({ slot, withSurface, id })}
           />

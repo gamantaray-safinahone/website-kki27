@@ -1,8 +1,7 @@
 "use client";
 
 // Satu-satunya tempat yang membuka koneksi Realtime dan mengisi store.
-// Alur: muat konfigurasi -> ikuti app_state.live_run_id -> muat snapshot run
-// -> langganan perubahan -> catch-up setiap tersambung ulang atau tab aktif lagi.
+// Alur: muat konfigurasi -> ikuti app_state.live_run_id -> muat snapshot run -> langganan perubahan -> catch-up setiap tersambung ulang atau tab aktif lagi.
 import { useEffect, useRef, type ReactNode } from "react";
 
 import { fetchConfig, fetchRunSnapshot } from "@/lib/queries";
@@ -12,7 +11,7 @@ import { catchUp } from "./catchup";
 import { subscribeConfig, subscribeRun } from "./channels";
 import { useLive, type RealtimeStatus } from "./store";
 
-const POLL_AFTER_MS = 10_000; // mulai polling bila Realtime putus lebih dari ini
+const POLL_AFTER_MS = 10_000; 
 const POLL_EVERY_MS = 3_000;
 
 function errorMessage(error: unknown): string {

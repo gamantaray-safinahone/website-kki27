@@ -3,8 +3,7 @@
 import { formatWibDate, formatWibTime } from "@/lib/format";
 import { useNow } from "@/lib/live/useNow";
 
-// Jam dua baris: "14.05.33 WIB" dan "27 November 2026".
-// Dihitung dengan zona Asia/Jakarta, bukan zona waktu perangkat penonton.
+// Dihitung dengan zona Asia/Jakarta
 export function WibClock() {
   const now = useNow();
   return (

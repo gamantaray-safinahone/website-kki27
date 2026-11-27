@@ -2,9 +2,6 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-
-// Tombol tema gaya 2026: ikon Sun/Moon bertumpuk dengan animasi.
-// Ikon dipilih lewat CSS (light:), jadi tidak ada beda tampilan server/client.
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   return (

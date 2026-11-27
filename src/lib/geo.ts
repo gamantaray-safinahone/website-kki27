@@ -1,6 +1,3 @@
-// Perhitungan geometri sederhana untuk area kecil (puluhan meter).
-// Bumi dianggap datar di sekitar titik pusat; galatnya sangat kecil di skala lintasan.
-
 export type LatLon = { lat: number; lon: number };
 
 const METERS_PER_DEG_LAT = 111_320;
@@ -39,8 +36,7 @@ export function normalizeDeg(deg: number): number {
   return ((deg % 360) + 360) % 360;
 }
 
-// Garis-garis grid lintasan: (rows + 1) garis mendatar dan (cols + 1) garis tegak,
-// diputar sebesar bearingDeg di sekitar pusat.
+// Garis-garis grid lintasan: (rows + 1) garis mendatar dan (cols + 1) garis tegak, diputar sebesar bearingDeg di sekitar pusat.
 export function gridLines(
   center: LatLon,
   rows: number,
@@ -94,8 +90,7 @@ export function gridCells(
   return cells;
 }
 
-// Titik di koordinat lokal grid: x = timur lokal, y = utara lokal (meter dari pusat),
-// diputar searah jarum jam sebesar bearingDeg.
+// Titik di koordinat lokal grid: x = timur lokal, y = utara lokal (meter dari pusat), diputar searah jarum jam sebesar bearingDeg.
 function gridPoint(
   center: LatLon,
   x: number,

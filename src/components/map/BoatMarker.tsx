@@ -7,10 +7,8 @@ import { destination } from "@/lib/geo";
 import { useLive } from "@/lib/live/store";
 import type { Telemetry } from "@/lib/queries";
 
-// Ikon kapal dari dashboard 2026 (haluan menghadap ke atas), proporsi gambar dijaga.
-const BOAT_HTML = `<div class="boat-icon"><img src="/kapalasli3.png" alt="" draggable="false" /></div>`;
+const BOAT_HTML = `<div class="boat-icon"><img src="/kapalasli.png" alt="" draggable="false" /></div>`;
 
-// Ikon kapal berputar sesuai heading (arah haluan), plus garis putus-putus arah COG.
 export function BoatMarker({ map }: { map: L.Map }) {
   useEffect(() => {
     const icon = L.divIcon({
@@ -32,7 +30,6 @@ export function BoatMarker({ map }: { map: L.Map }) {
     });
     let shown: Telemetry | null = null;
 
-    // Matikan animasi geser saat zoom supaya ikon tidak "meluncur" setelah zoom.
     const freeze = () => marker.getElement()?.classList.add("no-transition");
     const unfreeze = () =>
       setTimeout(

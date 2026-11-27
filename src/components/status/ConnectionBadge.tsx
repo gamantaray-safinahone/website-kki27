@@ -29,8 +29,7 @@ function boatStatus(
   return { label: "Offline", dot: "bg-red-500" };
 }
 
-// Status kapal (dari umur data) dan status sambungan Realtime. Teks selalu
-// ditampilkan, jadi status tidak hanya dibedakan lewat warna titik.
+// Status kapal (dari umur data) dan status sambungan Realtime. Teks selalu ditampilkan, jadi status tidak hanya dibedakan lewat warna titik.
 export function ConnectionBadge() {
   const now = useNow();
   const run = useLive((s) => s.run);

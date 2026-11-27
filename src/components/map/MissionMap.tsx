@@ -27,7 +27,6 @@ function subscribeFullscreen(onChange: () => void) {
 const isFullscreenNow = () => document.fullscreenElement != null;
 const isFullscreenOnServer = () => false;
 
-// Panel Real-Time Map gaya 2026.
 export function MissionMap() {
   // Pilihan Lintasan A/B hanya mengganti tampilan lokal (peta dan Camera Feeds).
   const [lintasan, setLintasan] = useViewLintasan();
@@ -49,7 +48,6 @@ export function MissionMap() {
       icon={MapIcon}
       className="flex-1"
       action={
-        // flex-auto (bukan flex-1): bila tidak muat di samping judul, grup ini turun ke baris baru.
         <div className="flex min-w-0 flex-auto flex-wrap items-center justify-end gap-x-4 gap-y-2">
           <RunInfo />
           <div

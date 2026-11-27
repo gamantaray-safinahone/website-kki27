@@ -5,13 +5,7 @@ import { useEffect } from "react";
 
 import { useLive, type TrailPoint } from "@/lib/live/store";
 
-// Jejak lintasan: garis merah putus-putus (gaya 2026, lebih tebal supaya terlihat
-// di proyektor). Membaca store langsung (bukan lewat render React): titik baru
-// ditambahkan satu per satu, dan jejak digambar ulang penuh hanya bila
-// trailRevision berubah (run baru atau backlog datang tidak urut).
-//
-// hiddenUntilT: titik dengan t <= nilai ini tidak digambar. Dipakai tombol Reset
-// untuk membersihkan jejak di layar saja; data di store dan database tetap utuh.
+// Jejak lintasan
 export function TrailLayer({
   map,
   hiddenUntilT,

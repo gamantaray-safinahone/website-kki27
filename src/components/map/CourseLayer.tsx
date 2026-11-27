@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import { offsetMeters } from "@/lib/geo";
 import type { CourseItem } from "@/lib/queries";
 
-// Ikon buoy dari dashboard 2026, diperbesar supaya terlihat di proyektor.
 const BUOY_PX = 14;
 const BUOY_ICONS: Record<string, string> = {
   buoy_red: "/merah.png",
@@ -25,7 +24,7 @@ const KIND_LABELS: Record<string, string> = {
   waypoint: "Waypoint",
 };
 
-const BOX_HALF_M = 0.75; // kotak imaging digambar 1,5 x 1,5 m
+const BOX_HALF_M = 0.75;
 
 function toLayer(item: CourseItem): L.Layer {
   const label = `${KIND_LABELS[item.kind] ?? item.kind} ${item.seq}${item.label ? ` · ${item.label}` : ""}`;
@@ -59,7 +58,6 @@ function toLayer(item: CourseItem): L.Layer {
     ).bindTooltip(label);
   }
   if (item.kind === "start" || item.kind === "finish") {
-    // Banner hitam "START" / "FINISH" seperti spanduk di arena.
     return L.marker(at, {
       keyboard: false,
       icon: L.divIcon({
@@ -78,7 +76,6 @@ function toLayer(item: CourseItem): L.Layer {
   }).bindTooltip(label);
 }
 
-// Buoy, kotak imaging, start/finish, dan waypoint lintasan yang sedang ditampilkan.
 export function CourseLayer({
   map,
   items,

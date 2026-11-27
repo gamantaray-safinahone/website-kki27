@@ -1,6 +1,3 @@
-// Daftar fase misi, status, dan slot kamera. Semua label UI ada di sini
-// (Bahasa Inggris), supaya komponen tidak menulis teks sendiri-sendiri.
-
 export const PHASES = [
   "preparation",
   "start",
@@ -53,8 +50,7 @@ export function isSlot(value: string): value is Slot {
   return (SLOTS as readonly string[]).includes(value);
 }
 
-// Urutan tampilan mengikuti app_state.phase_order; fase yang tidak tercantum
-// ditaruh di belakang supaya tetap terlihat.
+// Urutan tampilan mengikuti app_state.phase_order; fase yang tidak tercantum ditaruh di belakang supaya tetap terlihat.
 export function orderPhases(
   phaseOrder: readonly string[] | undefined,
 ): Phase[] {

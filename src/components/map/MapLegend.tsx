@@ -1,10 +1,6 @@
-/* eslint-disable @next/next/no-img-element -- ikon kecil statis yang sama dengan marker Leaflet */
 import { useState, type ReactNode } from "react";
 
 // Legenda kecil di kanan bawah peta, dua kolom. Bisa diciutkan (<details> bawaan browser).
-// Terbuka otomatis di layar lebar (TV/laptop); di HP tertutup supaya tidak menutupi peta.
-// Komponen ini hanya dirender di browser (lewat LeafletMap, ssr: false), jadi aman membaca window.
-
 const ITEMS: { label: string; swatch: ReactNode }[] = [
   {
     label: "Red buoy",
@@ -40,7 +36,7 @@ const ITEMS: { label: string; swatch: ReactNode }[] = [
   },
   {
     label: "Boat (heading)",
-    swatch: <img src="/kapalasli3.png" alt="" width={9} height={15} />,
+    swatch: <img src="/kapalasli.png" alt="" width={9} height={15} />,
   },
   {
     label: "Trail",

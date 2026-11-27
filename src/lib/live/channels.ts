@@ -15,8 +15,7 @@ import type {
 // Status dari supabase-js: SUBSCRIBED, TIMED_OUT, CLOSED, CHANNEL_ERROR.
 export type ChannelStatusHandler = (status: string) => void;
 
-// Nama channel dibuat unik per pemasangan supaya mount ulang (React Strict Mode,
-// pindah halaman) tidak bentrok dengan channel lama yang sedang ditutup.
+// Nama channel dibuat unik per pemasangan supaya mount ulang (React Strict Mode, pindah halaman) tidak bentrok dengan channel lama yang sedang ditutup.
 function uniqueName(prefix: string): string {
   return `${prefix}:${Math.random().toString(36).slice(2, 10)}`;
 }

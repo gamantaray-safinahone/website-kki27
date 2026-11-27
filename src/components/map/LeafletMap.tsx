@@ -15,7 +15,6 @@ import { MapControls } from "./MapControls";
 import { MapLegend } from "./MapLegend";
 import { TrailLayer } from "./TrailLayer";
 
-// Tampilan awal sebelum ada koordinat lintasan maupun posisi kapal (Indonesia).
 const FALLBACK_VIEW: L.LatLngExpression = [-2.5, 118];
 const BOAT_ZOOM = 20;
 const FIT_OPTIONS: L.FitBoundsOptions = { padding: [24, 24], maxZoom: 22 };
@@ -26,7 +25,6 @@ export default function LeafletMap({ lintasan }: { lintasan: string }) {
   const allItems = useLive((s) => s.items);
   const runId = useLive((s) => s.run?.id ?? null);
   const hasBoat = useLive((s) => s.latest?.lat != null && s.latest.lon != null);
-  // Reset jejak hanya di layar ini, berlaku untuk run saat tombol ditekan.
   const [trailReset, setTrailReset] = useState<{
     runId: string | null;
     t: number;
@@ -37,13 +35,12 @@ export default function LeafletMap({ lintasan }: { lintasan: string }) {
     [allItems, lintasan],
   );
 
-  // Peta dibuat saat elemen <div> dipasang dan dihapus saat dilepas.
   const containerRef = useCallback((element: HTMLDivElement | null) => {
     if (!element) return;
     const m = L.map(element, {
       maxZoom: 22,
       zoomSnap: 0.5,
-      attributionControl: true, // atribusi OSM wajib
+      attributionControl: true, 
     }).setView(FALLBACK_VIEW, 5);
 
     const streets = L.tileLayer(
@@ -66,7 +63,6 @@ export default function LeafletMap({ lintasan }: { lintasan: string }) {
         attribution: "&copy; OpenSeaMap",
       },
     );
-    // Kanan atas dipakai badge lintasan + fullscreen, jadi pilihan layer di kiri atas.
     L.control
       .layers(
         { Map: streets, Satellite: satellite },
@@ -88,7 +84,6 @@ export default function LeafletMap({ lintasan }: { lintasan: string }) {
     };
   }, []);
 
-  // Batas grid dihitung dari angka-angkanya saja, supaya pemuatan ulang data
   // lintasan yang isinya sama tidak menggeser peta yang sedang dilihat penonton.
   const centerLat = course?.center_lat ?? null;
   const centerLon = course?.center_lon ?? null;

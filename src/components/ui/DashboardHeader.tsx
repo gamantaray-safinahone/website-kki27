@@ -4,7 +4,7 @@ import { WibClock } from "@/components/status/WibClock";
 
 import { ThemeToggle } from "./ThemeToggle";
 
-// Header gaya 2026: logo + judul di kiri; status koneksi, tema, dan jam WIB di kanan.
+// header: logo + judul di kiri; status koneksi, tema, dan jam WIB di kanan.
 export function DashboardHeader() {
   return (
     <header className="border-border tall:pb-4 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b pb-3">

@@ -8,21 +8,19 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { CaptureStrip } from "./CaptureStrip";
 
-// Satu panel kamera: foto terbaru slot (thumbnail), kode slot, jam WIB, label,
-// dan strip riwayat. Panel underwater juga menampilkan foto permukaan yang
-// diambil bersamaan, sebagai gambar kecil di pojok.
+// Satu panel kamera
 export function CaptureCard({
   code,
   label,
   captures,
-  highlight,
+  border,
   withSurface = false,
   onOpen,
 }: {
   code: Slot;
   label: string;
   captures: Capture[]; // urut terbaru dulu
-  highlight: boolean; // slot dipakai lintasan aktif
+  border: "green" | "blue";
   withSurface?: boolean;
   onOpen: (id: number) => void;
 }) {
@@ -38,7 +36,7 @@ export function CaptureCard({
     <article
       aria-label={`${label} camera`}
       className={`bg-surface tall:p-2 flex min-h-0 flex-col border p-1.5 xl:flex-1 ${
-        highlight ? "border-lime-neon" : "border-transparent"
+        border === "green" ? "border-green-500" : "border-blue-500"
       }`}
     >
       <div className="light:bg-slate-200 relative min-h-44 flex-1 overflow-hidden bg-black/30 xl:min-h-0">

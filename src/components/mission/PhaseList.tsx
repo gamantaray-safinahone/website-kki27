@@ -17,8 +17,7 @@ import { useLive } from "@/lib/live/store";
 
 import { RunTimer } from "./RunTimer";
 
-// Mission Log gaya 2026. Bedanya: tidak diredupkan, fase selesai diberi centang
-// dan jam selesai, dan timer run menggantikan teks "Tahap 1" yang dulu di-hardcode.
+// Mission Log
 export function PhaseList() {
   const events = useLive((s) => s.events);
   const phaseOrder = useLive((s) => s.appState?.phase_order);

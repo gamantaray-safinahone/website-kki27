@@ -1,6 +1,5 @@
 import { Navigation, RefreshCw, Target } from "lucide-react";
 
-// Kontrol peta kiri bawah gaya 2026 (versi gelap). Label mengikuti istilah lomba 2026.
 // Hanya dipakai di dalam LeafletMap (komponen client), jadi tidak perlu "use client".
 export function MapControls({
   onBoat,
