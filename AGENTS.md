@@ -57,6 +57,7 @@ Supabase CLI 3 menjalankan perintah database ke database **lokal** secara defaul
 - Skema hanya berubah lewat file migrasi baru: `npx supabase migration new <nama>` → tulis SQL → `npm run db:push` → `npm run db:types`.
 - Jangan mengedit migrasi yang sudah di-push, termasuk `20261127000000_init.sql`.
 - `src/types/database.types.ts` dihasilkan otomatis. Jangan diedit manual.
+- Jangan pernah menjalankan `npx supabase config push`; untuk mengecek pengaturan pakai `npx supabase config diff`. `supabase/config.jsonc` berisi pengaturan bawaan Supabase lokal, jadi push akan menimpa pengaturan auth project tim (misalnya sign-up publik menyala lagi).
 - Mulai Tahap 1, semua query Supabase ditaruh di `src/lib/queries.ts`, bukan tersebar di komponen.
 
 ## Frontend

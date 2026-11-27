@@ -194,10 +194,12 @@ supabase/.branches/
 node_modules
 package-lock.json
 next-env.d.ts
-supabase
+/supabase
 src/types/database.types.ts
 *.md
 ```
+
+`/supabase` memakai garis miring di depan supaya hanya folder `supabase/` di root yang diabaikan; tanpa garis miring, `src/lib/supabase/` ikut diabaikan sehingga formatnya tidak pernah dicek.
 
 Di `package.json`, ganti blok `scripts` dan tambahkan `engines` (dependensi biarkan seperti hasil langkah 3):
 

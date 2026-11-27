@@ -65,6 +65,8 @@ npm run db:types                              # perbarui tipe TypeScript
 
 > **Peringatan:** Supabase CLI 3 menjalankan perintah database ke database **lokal** secara default. Tim tidak memakai Supabase lokal, jadi selalu tambahkan `--remote`. Script `db:*` di atas sudah memakainya.
 
+> **Peringatan:** Jangan pernah menjalankan `npx supabase config push`; untuk mengecek pengaturan pakai `npx supabase config diff`. File `supabase/config.jsonc` berisi pengaturan bawaan Supabase lokal, jadi push akan menimpa pengaturan auth project tim (misalnya sign-up publik menyala lagi).
+
 ## Deploy
 
 Vercel otomatis men-deploy setiap ada push ke branch `main`. Pull request mendapat deploy preview.
