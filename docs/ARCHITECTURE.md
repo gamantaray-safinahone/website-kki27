@@ -61,17 +61,17 @@ web-kki27/
 │  │        ├─ course/page.tsx
 │  │        └─ runs/page.tsx
 │  ├─ components/
-│  │  ├─ map/        MissionMap, BoatMarker, TrailLayer, CourseLayer, GridLayer
+│  │  ├─ map/        MissionMap, LeafletMap, BoatMarker, TrailLayer, CourseLayer, GridLayer
 │  │  ├─ telemetry/  TelemetryPanel, StatTile
 │  │  ├─ mission/    PhaseList, RunTimer
 │  │  ├─ captures/   LatestCaptures, CaptureCard, CaptureGallery, DetectionOverlay
-│  │  ├─ status/     ConnectionBadge, DataAge
+│  │  ├─ status/     ConnectionBadge, DataAge, RunInfo
 │  │  ├─ replay/     ReplayPlayer, TimeSlider, SogChart
 │  │  ├─ admin/      LoginForm, RunControls, CourseEditor
 │  │  └─ ui/         Card, Badge, Button, ThemeToggle, PanelBoundary
 │  ├─ lib/
 │  │  ├─ supabase/   client.ts, server.ts, proxy.ts
-│  │  ├─ live/       store.ts, LiveProvider.tsx, channels.ts, catchup.ts
+│  │  ├─ live/       store.ts, LiveProvider.tsx, channels.ts, catchup.ts, useNow.ts
 │  │  ├─ env.ts      # validasi variabel env publik
 │  │  ├─ queries.ts  # semua query Supabase di satu file
 │  │  ├─ mission.ts  # daftar fase, label UI (Inggris), warna status
@@ -79,8 +79,7 @@ web-kki27/
 │  │  └─ format.ts   # satuan, "12 s ago"
 │  ├─ types/database.types.ts   # hasil npm run db:types, jangan diedit
 │  └─ proxy.ts      # Next.js 16: pengganti middleware.ts (Tahap 3)
-├─ supabase/        migrations/, config.jsonc
-├─ scripts/simulate-boat.ts      # kapal palsu untuk pengembangan (Tahap 1)
+├─ supabase/        migrations/, config.jsonc, snippets/uji-manual.sql (uji dashboard lewat SQL Editor)
 ├─ docs/            ARCHITECTURE.md, DATA_CONTRACT.md, tasks/
 ├─ .github/workflows/  ci.yml, keepalive.yml
 ├─ .env.example     # hanya URL dan publishable key
@@ -111,7 +110,7 @@ web-kki27/
 - uPlot dan editor admin dimuat hanya di halamannya. Galeri memakai thumbnail 320 px dengan lazy loading; foto penuh dibuka saat diklik.
 - Jejak 1200 titik dari `get_run_series` sekitar 65 KB sebelum gzip. Grid, buoy, dan jejak tetap tergambar walau tile peta gagal dimuat.
 - Font sistem, tanpa web font.
-- Env web hanya berisi URL dan publishable key. Simulator membaca secret key "sim" dari `.env.sim` yang tidak dibaca Next.js.
+- Env web hanya berisi URL dan publishable key. Tidak ada secret key di laptop tim web.
 - `proxy.ts` menyegarkan sesi dan mengarahkan `/admin` ke login. Layout admin mengecek `app_admins` di server, dan RLS tetap penjaga terakhir. Tidak ada endpoint API buatan sendiri.
 - Tema terang/gelap. Di HP satu kolom (peta, status, fase, foto); di laptop dan layar TV panitia dua kolom dengan angka utama berukuran besar. Semua teks UI berbahasa Inggris.
 

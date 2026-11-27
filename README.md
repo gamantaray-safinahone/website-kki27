@@ -62,6 +62,7 @@ npm run db:types                              # perbarui tipe TypeScript
 - Sekali di awal, jalankan `npx supabase login` lalu `npx supabase link --project-ref <project-ref>`.
 - Jangan mengedit migrasi yang sudah di-push. Kalau ada yang salah, buat migrasi baru yang memperbaikinya.
 - Jangan mengedit `src/types/database.types.ts` dengan tangan; file itu dibuat oleh `npm run db:types`.
+- Untuk menguji dashboard tanpa kapal, jalankan bagian-bagian `supabase/snippets/uji-manual.sql` satu per satu di Supabase Dashboard > SQL Editor sambil membuka dashboard. **Jangan dijalankan saat lomba.**
 
 > **Peringatan:** Supabase CLI 3 menjalankan perintah database ke database **lokal** secara default. Tim tidak memakai Supabase lokal, jadi selalu tambahkan `--remote`. Script `db:*` di atas sudah memakainya.
 

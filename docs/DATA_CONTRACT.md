@@ -19,7 +19,7 @@ Kunci idempoten membuat kiriman ulang (retry) aman: baris yang sama tidak akan t
 ## Koneksi
 
 - Pakai HTTP biasa dengan `requests` (paket apt `python3-requests`), bukan supabase-py, supaya tidak perlu pip di Python sistem ROS.
-- Satu secret key per perangkat: `nuc`, `pi`, dan `sim` (untuk simulator tim web). Buat di Supabase Dashboard > Project Settings > API Keys > Secret keys. Bila satu bocor, cabut key itu saja.
+- Satu secret key per perangkat: `nuc` dan `pi`. Buat di Supabase Dashboard > Project Settings > API Keys > Secret keys. Bila satu bocor, cabut key itu saja.
 - Simpan di `~/.config/safinah/web.env` dengan izin `600`, berisi `SUPABASE_URL` dan `SUPABASE_SECRET_KEY`. Jangan ditaruh di repo, launch file, atau log.
 - Header setiap request: `apikey` dan `Authorization: Bearer` berisi secret key yang sama (meniru supabase-js), `Content-Type: application/json`, `Prefer: resolution=ignore-duplicates,return=minimal`. Cek sekali dengan curl di awal integrasi.
 
@@ -138,6 +138,7 @@ Slot per lintasan: A memakai UL + SR, B memakai SL + UR (S = surface, U = underw
 - 400 atau 422 berarti data salah: catat isi respons, buang batch itu, lanjut. 401 atau 403 berarti key salah: jangan buang data, berhenti kirim, tulis error di log ROS.
 - Validasi di kapal dengan aturan yang sama seperti database (lat −90..90, lon −180..180, sudut dinormalkan ke [0, 360), NaN menjadi null), supaya satu nilai salah tidak menggagalkan satu batch.
 - Telemetri boleh dibuang bila antrean lebih dari 1 jam. Event, status run, dan foto disimpan di disk dan tidak pernah dibuang.
+- Setelah kiriman berhasil, hapus sampel dari antrean berdasarkan objeknya, bukan dengan `pop()`. Selama menunggu jaringan, sampel baru bisa sudah masuk ke ujung antrean, dan `pop()` akan membuang sampel yang belum terkirim.
 
 ## Jam
 

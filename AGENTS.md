@@ -19,8 +19,9 @@ Baca sebelum menulis kode:
 | Tailwind CSS | 4.3 |
 | @supabase/supabase-js / @supabase/ssr | 2.119.2 / 0.12.7 |
 | Supabase CLI (devDependency, `npx supabase`) | 3.4.0 |
-| Leaflet / react-leaflet (mulai Tahap 1) | 1.9.4 / 5.0.0 |
-| Zustand (mulai Tahap 1) | 5.1 |
+| Leaflet (tanpa react-leaflet) | 1.9.4 |
+| Zustand | 5.1.0 |
+| next-themes (tema terang/gelap) | 0.4.6 |
 | uPlot (mulai Tahap 4) | 1.6 |
 | Node.js | 24 LTS (`.nvmrc`), minimal 20.9 |
 | Package manager | npm |
@@ -46,11 +47,10 @@ Supabase CLI 3 menjalankan perintah database ke database **lokal** secara defaul
 
 ## Keamanan (wajib)
 
-1. Aplikasi web hanya memakai `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Secret key (`sb_secret_…`) dan service role key tidak boleh ada di kode aplikasi, di `.env.local`, atau di repo.
-2. Pengecualian satu-satunya: simulator kapal (`scripts/simulate-boat.ts`, Tahap 1) membaca secret key "sim" dari `.env.sim` yang di-gitignore. File itu tidak pernah dibaca Next.js dan skrip itu tidak pernah di-import aplikasi.
-3. Jangan membuat Route Handler atau API yang menulis data. Publik hanya membaca; admin menulis langsung dengan sesi login; RLS di database adalah penjaga terakhir.
-4. Jangan pernah melonggarkan RLS: tidak ada policy insert/update/delete untuk `anon`, dan tidak ada `using (true)` untuk operasi tulis.
-5. Jangan commit file `.env*` selain `.env.example`.
+1. Aplikasi web hanya memakai `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Secret key (`sb_secret_…`) dan service role key tidak boleh ada di kode aplikasi, di file `.env` mana pun di laptop tim web, atau di repo.
+2. Jangan membuat Route Handler atau API yang menulis data. Publik hanya membaca; admin menulis langsung dengan sesi login; RLS di database adalah penjaga terakhir.
+3. Jangan pernah melonggarkan RLS: tidak ada policy insert/update/delete untuk `anon`, dan tidak ada `using (true)` untuk operasi tulis.
+4. Jangan commit file `.env*` selain `.env.example`.
 
 ## Database
 
