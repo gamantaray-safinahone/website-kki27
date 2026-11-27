@@ -1,6 +1,6 @@
 # Tahap 1 — Dashboard live (MVP)
 
-**Tujuan:** halaman `/` menampilkan data kapal secara live: peta (grid, buoy, kotak imaging, jejak, ikon kapal yang berputar), panel telemetri, 7 fase misi dengan timer, foto terbaru per slot, dan indikator koneksi. Data uji datang dari simulator kapal yang menulis ke Supabase persis seperti kontrak di `docs/DATA_CONTRACT.md`.
+**Tujuan:** halaman `/` menampilkan data kapal secara live: peta (grid, buoy, kotak imaging, jejak, ikon kapal yang berputar), panel telemetri, 7 fase misi dengan timer, foto terbaru per slot, dan indikator koneksi. Data uji dimasukkan manual lewat Supabase SQL Editor dengan `supabase/snippets/uji-manual.sql`, mengikuti kontrak di `docs/DATA_CONTRACT.md`.
 
 **Folder repo:** `/home/fazli/safinah1/web-kki27`
 
@@ -11,7 +11,7 @@ Label langkah sama seperti Tahap 0: **[AGENT]** dikerjakan agent, **[MANUSIA]** 
 Semua file di paket ini sudah diuji di sandbox (27 November 2026):
 
 - `npm run check` lulus (lint, typecheck, format, build).
-- Simulator dijalankan ke tiruan Supabase yang memakai skema v2 asli: 93 sampel tanpa celah dan tanpa duplikat, 23 event, 2 foto, run ditutup dengan benar, termasuk saat internet "diputus" 15–30 detik.
+- `supabase/snippets/uji-manual.sql` (ditambahkan di repo, bukan dari paket) dijalankan per bagian di Postgres 16 lokal yang memakai migrasi `20261127000000_init.sql` asli: telemetri berjarak tepat 1 detik, tanpa duplikat, dan tidak pernah di masa depan; semua fase berpindah sampai Done; run ditutup; bagian pembersih menghapus semua data uji.
 - Logika store lulus 21 pemeriksaan (duplikat, data terlambat, ganti run, fase, foto).
 - Dashboard dibuka di Chrome (1920×1080, HP 390 px, mode gelap) tanpa error. Realtime tidak bisa diuji di sandbox; yang teruji di sana adalah jalur cadangan polling. Realtime diuji di langkah 7 dengan Supabase asli.
 
@@ -21,7 +21,6 @@ Semua file di paket ini sudah diuji di sandbox (27 November 2026):
 
 | File | Fungsi |
 | --- | --- |
-| `scripts/simulate-boat.mts` | Kapal palsu. Menulis run, telemetri 1 Hz, event, dan foto PNG lewat HTTP biasa. Sekaligus contoh kode untuk tim ROS |
 | `src/lib/queries.ts` | Semua query Supabase dan tipe baris (`Telemetry`, `Run`, …) |
 | `src/lib/mission.ts` | Daftar fase, status, slot, label UI (Inggris), status terakhir per fase |
 | `src/lib/geo.ts` | Geser titik dalam meter, garis grid lintasan |
@@ -39,10 +38,12 @@ Semua file di paket ini sudah diuji di sandbox (27 November 2026):
 | `src/components/ui/*` | `Card`, `PanelBoundary` (error boundary), `ThemeToggle` |
 | `src/app/layout.tsx`, `page.tsx`, `globals.css` | Tema terang/gelap, susunan dashboard, animasi ikon kapal |
 
+Ditambahkan di repo, bukan dari paket: `supabase/snippets/uji-manual.sql`, SQL untuk menguji dashboard per bagian di SQL Editor (langkah 7). File ini tidak dijalankan otomatis.
+
 Perbedaan kecil dari rancangan awal:
 
 - Peta memakai Leaflet langsung tanpa react-leaflet. Layer diperbarui lewat objek Leaflet, bukan render ulang React tiap detik, jadi react-leaflet tidak memberi manfaat.
-- Simulator berakhiran `.mts` (bukan `.ts`) supaya Node menjalankannya langsung sebagai ES module tanpa alat tambahan.
+- Data uji tidak dikirim lewat skrip di laptop. Supaya tidak ada secret key di laptop tim web, data uji dimasukkan lewat SQL Editor dengan `supabase/snippets/uji-manual.sql`.
 - Peta menyesuaikan zoom ke grid lintasan (`fitBounds`). Kolom `courses.zoom` belum dipakai.
 
 ---
@@ -52,13 +53,10 @@ Perbedaan kecil dari rancangan awal:
 ```bash
 cd /home/fazli/safinah1/web-kki27
 git status                 # harus bersih
-node -v                    # minimal v22.18 (menjalankan .mts langsung); disarankan v24
-git check-ignore .env.sim  # harus mencetak ".env.sim" (file tidak ikut commit)
+node -v                    # minimal v20.9; disarankan v24
 ```
 
-`.env.sim` harus berisi dua baris: `SUPABASE_URL=...` dan `SUPABASE_SECRET_KEY=sb_secret_...`. Jangan menampilkan isinya.
-
-Bila Node di bawah v22.18, berhenti dan minta manusia merapikan PATH supaya Node 24 dari nvm yang dipakai.
+Bila Node di bawah v20.9, berhenti dan minta manusia merapikan PATH supaya Node 24 dari nvm yang dipakai.
 
 ## 2. [AGENT] Pasang dependensi
 
@@ -85,26 +83,19 @@ rm src/components/status/DatabaseStatus.tsx   # pemeriksaan Tahap 0, sudah digan
 git status
 ```
 
-Cek: tidak ada file lain dari Tahap 0 yang terhapus, dan `.env.sim` tidak muncul di `git status`.
-
-Tambahkan script ini ke `package.json`:
-
-```json
-"sim": "node --env-file=.env.sim scripts/simulate-boat.mts --follow"
-```
+Cek: tidak ada file lain dari Tahap 0 yang terhapus.
 
 ## 5. [AGENT] Perbarui dokumen
 
 1. `AGENTS.md`, tabel stack: ganti baris "Leaflet / react-leaflet (mulai Tahap 1)" menjadi `Leaflet (tanpa react-leaflet) | 1.9.4`, ganti baris Zustand menjadi `Zustand | 5.1.0`, dan tambahkan baris `next-themes (tema terang/gelap) | 0.4.6`.
-2. `AGENTS.md`, bagian Keamanan poin 2: ganti `scripts/simulate-boat.ts` menjadi `scripts/simulate-boat.mts`.
-3. `docs/ARCHITECTURE.md`, struktur folder:
-   - `components/map/` tambahkan `LeafletMap`;
-   - `components/status/` tambahkan `RunInfo`;
-   - `lib/live/` tambahkan `useNow.ts`;
-   - `scripts/simulate-boat.ts` menjadi `scripts/simulate-boat.mts`.
-4. `docs/DATA_CONTRACT.md`, bagian "Antrean dan retry", tambahkan satu poin:
-   "Setelah kiriman berhasil, hapus sampel dari antrean berdasarkan objeknya, bukan dengan `pop()`. Selama menunggu jaringan, sampel baru bisa sudah masuk ke ujung antrean, dan `pop()` akan membuang sampel yang belum terkirim. Bug ini ditemukan saat menguji simulator. Lihat `flush()` di `scripts/simulate-boat.mts`."
-5. `README.md`: tambahkan `npm run sim` ke tabel perintah, dengan peringatan "jangan dijalankan saat lomba".
+2. `AGENTS.md`, bagian Keamanan: hapus poin 2 (pengecualian secret key di laptop), lalu ubah poin 1 menjadi: secret key tidak boleh ada di kode aplikasi, di file `.env` mana pun di laptop tim web, atau di repo.
+3. `docs/ARCHITECTURE.md`:
+   - struktur folder: `components/map/` tambahkan `LeafletMap`; `components/status/` tambahkan `RunInfo`; `lib/live/` tambahkan `useNow.ts`; baris `supabase/` tambahkan `snippets/uji-manual.sql`;
+   - bagian "Ringan dan aman": env web hanya berisi URL dan publishable key, dan tidak ada secret key di laptop tim web.
+4. `docs/DATA_CONTRACT.md`:
+   - bagian "Koneksi": secret key per perangkat hanya `nuc` dan `pi`;
+   - bagian "Antrean dan retry", tambahkan satu poin: "Setelah kiriman berhasil, hapus sampel dari antrean berdasarkan objeknya, bukan dengan `pop()`. Selama menunggu jaringan, sampel baru bisa sudah masuk ke ujung antrean, dan `pop()` akan membuang sampel yang belum terkirim."
+5. `README.md`, bagian Database: tambahkan cara memakai `supabase/snippets/uji-manual.sql`, dengan peringatan "jangan dijalankan saat lomba".
 
 ## 6. [AGENT] Cek kode
 
@@ -117,73 +108,61 @@ Bila typecheck gagal di file paket, bandingkan dengan `src/types/database.types.
 
 ## 7. [MANUSIA + AGENT] Uji dengan Supabase asli
 
-Terminal 1:
+Terminal:
 
 ```bash
 npm run dev
 ```
 
-Terminal 2 (pertama kali, isi koordinat contoh dan buoy untuk lintasan A):
+Buka http://localhost:3000. Lalu buka Supabase Dashboard > SQL Editor dan tempel isi `supabase/snippets/uji-manual.sql`. Jalankan **satu bagian setiap kali**: sorot bagian itu, lalu klik Run. Jangan menjalankan seluruh file sekaligus, karena bagian 5 (pembersih) akan ikut jalan. Setiap bagian punya catatan "Di dashboard:" tentang apa yang seharusnya terlihat tanpa reload.
 
-```bash
-npm run sim -- --seed-course
-```
+Urutan: bagian 0 (lintasan contoh, cukup sekali) → 1 (run uji) → 2 (telemetri, ulangi kira-kira tiap 10 detik) → 3a sampai 3i (event misi, berurutan) → 4 (akhiri run).
 
-Simulator berjalan sekitar 95 detik lalu menutup run. Pilihan lain: `--lintasan B`, `--outage 40:30` (internet "putus" di detik 40 selama 30 detik), `--center -7.77,110.37` (titik pusat lain).
-
-Buka http://localhost:3000 dan cek satu per satu:
-
-- [ ] Kanan atas: **Boat: Online**, **Feed: Live** (bukan Polling), "Last data" 0–2 s.
+- [ ] Setelah bagian 1: header menampilkan "Course A · Manual test".
+- [ ] Setelah bagian 2: kanan atas **Boat: Online**, **Feed: Live** (bukan Polling), "Last data" 0–2 s.
 - [ ] Peta menyesuaikan ke grid 6 × 6; terlihat 10 pasang buoy (merah di kanan, hijau di kiri), kotak imaging biru dan hijau, Start, dan Finish.
-- [ ] Ikon kapal bergerak halus dan berputar sesuai arah; jejak oranye bertambah; garis putus-putus menunjukkan COG.
-- [ ] Panel Mission: fase berubah dari Pending ke Active ke Done, "Gate n / 10" bertambah, timer berjalan sejak Start.
-- [ ] Panel Imaging: foto UL (kotak biru) lalu SR (kotak hijau) muncul tanpa reload; klik foto membuka ukuran penuh.
-- [ ] Setelah selesai: semua fase Done, badge **Run ended**.
+- [ ] Bagian 2 diulang: ikon kapal bergerak halus dan berputar sesuai arah; jejak oranye bertambah; garis putus-putus menunjukkan COG.
+- [ ] Bagian 3a sampai 3i: fase berubah dari Pending ke Active ke Done, "Gate n / 10" bertambah setiap 3d dijalankan, timer berjalan sejak 3b (Start aktif) dan berhenti di 3i.
+- [ ] Setelah bagian 4: badge **Run ended**.
 - [ ] Mode gelap bisa dinyalakan dan dimatikan.
+
+Panel Imaging tetap "No photo yet" karena foto butuh file di Storage. Foto diuji saat integrasi Pi di Tahap 2.
 
 Uji ketahanan (inilah kriteria selesai Tahap 1):
 
-- [ ] `npm run sim -- --outage 40:30`: saat "putus", badge berubah ke Delayed lalu Offline. Setelah pulih, kembali Online dan jejak terisi tanpa garis lurus yang melompat.
-- [ ] Chrome DevTools > Network > throttling "3G": halaman tetap terbuka dalam beberapa detik dan data terus bergerak.
-- [ ] Buka di HP, kunci layar sekitar 1 menit saat simulator berjalan, lalu buka lagi: data mengejar sendiri tanpa reload.
+- [ ] Saat run masih live (sebelum bagian 4), berhenti menjalankan bagian 2: badge berubah ke Delayed setelah 5 detik, lalu Offline setelah 15 detik. Jalankan bagian 2 lagi: kembali Online dan jejak menyambung tanpa garis lurus yang melompat.
+- [ ] Chrome DevTools > Network > throttling "3G": halaman tetap terbuka dalam beberapa detik, dan data dari bagian 2 terus masuk.
+- [ ] Buka di HP, kunci layar sekitar 1 menit sambil menjalankan bagian 2 dan 3d beberapa kali, lalu buka lagi: data mengejar sendiri tanpa reload.
 - [ ] Jendela Chrome 1920×1080 (layar TV panitia): seluruh dashboard terlihat tanpa scroll.
-- [ ] `npm run sim -- --lintasan B --seed-course`: label "Course B"; slot foto besar menjadi SL dan UR.
+- [ ] Lintasan B: di bagian 1, ganti `'A'` menjadi `'B'` pada `insert into public.runs`, lalu jalankan bagian 1. Label menjadi "Course B" dan slot foto besar menjadi SL dan UR. Grid tidak tampil karena lintasan B belum punya koordinat, jadi peta berpusat pada kapal.
 
-Cek celah data di SQL Editor (hasilnya harus 0):
+Kelengkapan data dari kapal sungguhan (tanpa celah dan tanpa dobel, termasuk saat internet putus) diuji di Tahap 2.
 
-```sql
-select count(*) as celah
-from (
-  select t - lag(t) over (order by t) as jarak
-  from telemetry
-  where run_id = (select live_run_id from app_state)
-) s
-where jarak > interval '1.5 s';
-```
-
-Tulis "lanjut" ke agent beserta hasil cek, termasuk yang gagal.
+Selesai menguji, jalankan bagian 5 (dan 5b bila bagian 0 dipakai). Tulis "lanjut" ke agent beserta hasil cek, termasuk yang gagal.
 
 ## 8. [AGENT] Laporan dan commit
 
-Laporkan hasil langkah 6 dan 7, termasuk hal yang berbeda dari dokumen ini. Commit hanya bila manusia memintanya, misalnya `git commit -m "Tahap 1: dashboard live, simulator, store, peta"`.
+Laporkan hasil langkah 6 dan 7, termasuk hal yang berbeda dari dokumen ini. Commit hanya bila manusia memintanya, misalnya `git commit -m "Tahap 1: dashboard live, store, peta"`.
 
 ## 9. [MANUSIA] Bersihkan data uji (bila perlu)
 
-Run simulator ditandai `source = 'sim'` dan tidak pernah diikuti dashboard secara otomatis, kecuali lewat `--follow` (sudah termasuk di `npm run sim`). Sebelum dashboard dipakai untuk uji kapal sungguhan:
+Run uji dari `supabase/snippets/uji-manual.sql` memakai `source = 'sim'`. Run seperti ini tidak pernah diikuti dashboard secara otomatis; bagian 1 yang mengarahkan dashboard ke sana secara manual. Sebelum dashboard dipakai untuk uji kapal sungguhan, jalankan bagian 5 (dan 5b bila bagian 0 dipakai) dari file itu.
+
+Bila masih ada sisa run uji lain atau lintasan contoh, bersihkan semuanya:
 
 ```sql
--- berhenti mengikuti run simulator
+-- berhenti mengikuti run uji
 update app_state set live_run_id = null;
 
--- hapus run simulator beserta telemetri, event, dan baris fotonya
+-- hapus semua run uji beserta telemetri, event, dan baris fotonya
 delete from runs where source = 'sim';
 
--- opsional: kosongkan lintasan contoh dari --seed-course
+-- opsional: kosongkan lintasan contoh
 delete from course_items where lintasan in ('A', 'B');
 update courses set center_lat = null, center_lon = null;
 ```
 
-File foto simulator di Storage tidak ikut terhapus oleh SQL. Hapus folder `runs/` yang sesuai lewat Supabase Dashboard > Storage > `captures`. Penghapusan otomatis dibuat di halaman admin (Tahap 3).
+`uji-manual.sql` tidak mengunggah foto, jadi tidak ada file di Storage yang perlu dihapus.
 
 ---
 
@@ -194,4 +173,4 @@ File foto simulator di Storage tidak ikut terhapus oleh SQL. Hapus folder `runs/
 - **Duplikat dibuang berdasarkan `t`.** Waktu sampel unik per run di database, jadi data yang datang dua kali (snapshot dan catch-up, atau retry kapal) tidak menggandakan jejak.
 - **Catch-up dan polling.** Setiap Realtime tersambung (lagi) atau tab aktif lagi, provider mengambil baris dengan `id` lebih besar dari yang sudah ada. Bila Realtime putus lebih dari 10 detik, catch-up dijalankan tiap 3 detik dan badge menampilkan "Polling".
 - **Umur data dari jam browser.** Setelah data live pertama tiba, "Last data" dihitung dari saat data tiba di browser, sehingga jam HP penonton yang meleset tidak berpengaruh.
-- **Simulator adalah contoh kontrak.** Header, kunci idempoten, urutan foto (file dulu, baris kemudian), antrean "terbaru dulu, backlog menyusul", dan cara menghapus dari antrean di `scripts/simulate-boat.mts` sama dengan yang diharapkan dari `web_bridge` dan `capture_uploader`.
+- **Data uji lewat SQL Editor.** Tidak ada secret key di laptop tim web, jadi data uji dimasukkan lewat `supabase/snippets/uji-manual.sql`. Aturan untuk `web_bridge` dan `capture_uploader` (header, kunci idempoten, urutan foto: file dulu, baris kemudian; antrean "terbaru dulu, backlog menyusul"; cara menghapus dari antrean) beserta contoh kodenya ada di `docs/DATA_CONTRACT.md`.
