@@ -12,7 +12,7 @@ const ITEMS: { label: string; swatch: ReactNode }[] = [
   },
   {
     label: "Docking ball",
-    swatch: <img src="/bulat_biru.svg" alt="" width={12} height={12} />,
+    swatch: <img src="/biru.svg" alt="" width={12} height={12} />,
   },
   {
     label: "Start / Finish",
@@ -36,7 +36,7 @@ const ITEMS: { label: string; swatch: ReactNode }[] = [
   },
   {
     label: "Boat (heading)",
-    swatch: <img src="/kapalasli.png" alt="" width={9} height={15} />,
+    swatch: <img src="/kapal.png" alt="" width={9} height={15} />,
   },
   {
     label: "Trail",

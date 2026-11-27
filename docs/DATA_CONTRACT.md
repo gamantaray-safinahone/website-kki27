@@ -12,7 +12,7 @@ Skema database lengkap: `supabase/migrations/20261127000000_init.sql`.
 | `telemetry` | NUC `web_bridge` | 1 sampel per detik | `(run_id, t)` |
 | `mission_events` | NUC `web_bridge`, dari state machine | Saat status fase berubah | `(run_id, phase, t)` |
 | File di bucket `captures` + tabel `captures` | Pi `capture_uploader` | Setiap foto hasil imaging | `storage_path` |
-| `runs` (label, resmi, catatan), `app_state`, `courses`, `course_items`, `captures.hidden` | Admin web | Manual | — |
+| `runs` (label, catatan), `app_state`, `courses`, `course_items`, `captures.hidden` | Admin web | Manual | — |
 
 Kunci idempoten membuat kiriman ulang (retry) aman: baris yang sama tidak akan tercatat dua kali.
 

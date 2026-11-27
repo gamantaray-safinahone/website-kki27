@@ -40,7 +40,7 @@ export default function LeafletMap({ lintasan }: { lintasan: string }) {
     const m = L.map(element, {
       maxZoom: 22,
       zoomSnap: 0.5,
-      attributionControl: true, 
+      attributionControl: true,
     }).setView(FALLBACK_VIEW, 5);
 
     const streets = L.tileLayer(

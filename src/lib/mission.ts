@@ -90,3 +90,27 @@ export function describeDetail(phase: Phase, detail: unknown): string | null {
   if (typeof d.slot === "string") return `Slot ${d.slot}`;
   return null;
 }
+
+// Jenis objek lintasan (check constraint course_items.kind) dan labelnya.
+export const COURSE_ITEM_KINDS = [
+  "start",
+  "finish",
+  "buoy_red",
+  "buoy_green",
+  "buoy_blue",
+  "imaging_surface",
+  "imaging_underwater",
+  "waypoint",
+] as const;
+export type CourseItemKind = (typeof COURSE_ITEM_KINDS)[number];
+
+export const COURSE_ITEM_LABELS: Record<CourseItemKind, string> = {
+  start: "Start",
+  finish: "Finish",
+  buoy_red: "Red buoy",
+  buoy_green: "Green buoy",
+  buoy_blue: "Docking ball",
+  imaging_surface: "Surface imaging (green box)",
+  imaging_underwater: "Underwater imaging (blue box)",
+  waypoint: "Waypoint",
+};

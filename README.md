@@ -68,6 +68,16 @@ npm run db:types                              # perbarui tipe TypeScript
 
 > **Peringatan:** Jangan pernah menjalankan `npx supabase config push`; untuk mengecek pengaturan pakai `npx supabase config diff`. File `supabase/config.jsonc` berisi pengaturan bawaan Supabase lokal, jadi push akan menimpa pengaturan auth project tim (misalnya sign-up publik menyala lagi).
 
+## Admin
+
+Halaman admin ada di `/admin` (login email + password). Akun admin dibuat manual:
+
+1. Supabase Dashboard > Authentication > Sign In / Providers: pastikan **Allow new users to sign up** mati. Kalau menyala, siapa pun bisa membuat akun (tetap tidak bisa menulis, tapi tidak perlu).
+2. Authentication > Users > Add user: buat akun, salin UUID-nya.
+3. SQL Editor: `insert into public.app_admins (user_id) values ('<uuid>');`
+
+Akun tanpa baris di `app_admins` hanya melihat "Not authorized", dan RLS menolak semua tulisannya.
+
 ## Deploy
 
 Vercel otomatis men-deploy setiap ada push ke branch `main`. Pull request mendapat deploy preview.

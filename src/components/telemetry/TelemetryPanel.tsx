@@ -24,7 +24,7 @@ function batteryState(pct: number | null | undefined): {
   return { tone: "normal", text: "OK" };
 }
 
-// Navigation Data 
+// Navigation Data
 export function TelemetryPanel() {
   const t = useLive((s) => s.latest);
 

@@ -11,7 +11,7 @@ import { catchUp } from "./catchup";
 import { subscribeConfig, subscribeRun } from "./channels";
 import { useLive, type RealtimeStatus } from "./store";
 
-const POLL_AFTER_MS = 10_000; 
+const POLL_AFTER_MS = 10_000;
 const POLL_EVERY_MS = 3_000;
 
 function errorMessage(error: unknown): string {

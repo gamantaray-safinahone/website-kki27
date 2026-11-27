@@ -7,7 +7,7 @@ import { destination } from "@/lib/geo";
 import { useLive } from "@/lib/live/store";
 import type { Telemetry } from "@/lib/queries";
 
-const BOAT_HTML = `<div class="boat-icon"><img src="/kapalasli.png" alt="" draggable="false" /></div>`;
+const BOAT_HTML = `<div class="boat-icon"><img src="/kapal.png" alt="" draggable="false" /></div>`;
 
 export function BoatMarker({ map }: { map: L.Map }) {
   useEffect(() => {

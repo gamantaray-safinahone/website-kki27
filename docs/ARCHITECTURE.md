@@ -34,13 +34,13 @@ NUC dan Pi hanya menulis, browser publik hanya membaca, dan admin menulis lewat 
 | Route | Isi | Akses |
 | --- | --- | --- |
 | `/` | Dashboard live untuk publik sekaligus layar panitia (gaya dashboard KKI 2026, acuan `docs/ui-reference-2026.md`): peta, posisi/SoG/CoG/heading/baterai, 7 fase dengan timer run, 3 panel kamera dengan riwayat foto, indikator koneksi | Publik |
-| `/runs` | Daftar run: tanggal, lintasan, label, resmi, durasi | Publik |
+| `/runs` | Daftar run: tanggal, lintasan, label, durasi | Publik |
 | `/runs/[runId]` | Replay: slider waktu, kecepatan putar 1–10×, grafik SOG, titik event di peta dan grafik | Publik |
 | `/runs/[runId]/photos` | Galeri per slot: waktu, posisi, kotak deteksi | Publik |
 | `/admin/login` | Login email + password (Supabase Auth) | Publik |
-| `/admin` | Run live: label, tandai resmi, akhiri; lintasan aktif; urutan fase | Admin |
-| `/admin/course` | Editor lintasan A/B: isi koordinat pusat, geser buoy/waypoint, tombol "move to boat position" | Admin |
-| `/admin/runs` | Hapus run beserta fotonya, sembunyikan foto gagal | Admin |
+| `/admin` | Run live: ikuti/lepas, label, catatan, akhiri; lintasan aktif; urutan fase | Admin |
+| `/admin/course` | Editor lintasan A/B: koordinat pusat (manual atau "Use boat position"), ukuran grid, slot kamera, tambah/geser/hapus objek lintasan | Admin |
+| `/admin/runs` | Daftar run, sembunyikan/hapus foto, hapus run beserta semua file Storage-nya | Admin |
 
 ## Struktur folder
 
@@ -69,7 +69,8 @@ web-kki27/
 │  │  │              DetectionOverlay, CaptureGallery
 │  │  ├─ status/     ConnectionBadge, DataAge, RunInfo, WibClock
 │  │  ├─ replay/     ReplayPlayer, TimeSlider, SogChart
-│  │  ├─ admin/      LoginForm, RunControls, CourseEditor
+│  │  ├─ admin/      LoginForm, AdminHeader, FollowedRun, RecentRuns, DisplaySettings,
+│  │  │              RunArchive, RunPhotos, CourseEditor, CourseEditorMap, ...
 │  │  └─ ui/         Card, DashboardHeader, DashboardFooter, ThemeToggle, PanelBoundary,
 │  │                 Badge, Button
 │  ├─ lib/
@@ -104,7 +105,7 @@ web-kki27/
 ## Komponen utama
 
 - Header (`DashboardHeader`): logo + "Safinah One", lalu `ConnectionBadge` (status kapal dan Feed), tombol tema, dan `WibClock` (jam `HH.MM.SS WIB` dihitung dengan zona Asia/Jakarta, bukan zona perangkat).
-- `MissionMap` (panel Real-Time Map) dimuat hanya di client. Header: info run (`RunInfo`) dan pilihan "Lintasan A | Lintasan B" yang hanya mengganti tampilan lokal di tab itu: peta dan Camera Feeds ikut berganti (`useViewLintasan` di `lib/courseView.ts`; default: lintasan run yang diikuti, lalu `app_state.active_lintasan`). Overlay: badge lintasan + fullscreen di kanan atas, `MapControls` (Kapal, Arena, Reset) di kiri bawah, `MapLegend`, skala, dan atribusi OSM. Isinya tile OSM dengan pilihan citra satelit, overlay OpenSeaMap, grid dari konfigurasi lintasan (default 6 × 6 sel @ 5 m) berlabel di tengah sel (huruf = baris dari bawah, angka = kolom dari kiri, misalnya `C3`), buoy 14 px, kotak imaging 1,5 m, jejak merah putus-putus, dan ikon kapal `kapalasli.png` yang berputar sesuai heading plus garis COG. Reset hanya membersihkan jejak di layar; data tidak dihapus. Peta tidak digeser saat data baru masuk, hanya saat geometri grid berubah. Selama koordinat lintasan kosong, peta berpusat pada posisi kapal.
+- `MissionMap` (panel Real-Time Map) dimuat hanya di client. Header: info run (`RunInfo`) dan pilihan "Lintasan A | Lintasan B" yang hanya mengganti tampilan lokal di tab itu: peta dan Camera Feeds ikut berganti (`useViewLintasan` di `lib/courseView.ts`; default: lintasan run yang diikuti, lalu `app_state.active_lintasan`). Overlay: badge lintasan + fullscreen di kanan atas, `MapControls` (Kapal, Arena, Reset) di kiri bawah, `MapLegend`, skala, dan atribusi OSM. Isinya tile OSM dengan pilihan citra satelit, overlay OpenSeaMap, grid dari konfigurasi lintasan (default 6 × 6 sel @ 5 m) berlabel di tengah sel (huruf = baris dari bawah, angka = kolom dari kiri, misalnya `C3`), buoy 14 px, kotak imaging 1,5 m, jejak merah putus-putus, dan ikon kapal `kapal.png` yang berputar sesuai heading plus garis COG. Reset hanya membersihkan jejak di layar; data tidak dihapus. Peta tidak digeser saat data baru masuk, hanya saat geometri grid berubah. Selama koordinat lintasan kosong, peta berpusat pada posisi kapal.
 - `TelemetryPanel` (Navigation Data) menampilkan Latitude/Longitude 6 desimal, SoG, CoG, heading, baterai (% · V · A, ambang 30 % dan 15 % ditandai warna dan teks), dan umur data (`DataAge`).
 - `PhaseList` (Mission Log) menampilkan 7 fase bernomor 01–07 sesuai `app_state.phase_order`: aktif berlatar lime, selesai diberi centang dan jam, pending tidak diredupkan, plus detail (misalnya Gate 4 / 10). `RunTimer` di pojok header menghitung sejak fase start aktif.
 - `LatestCaptures` (Camera Feeds) menampilkan 3 panel untuk lintasan yang sedang dilihat, dari atas: slot surface lintasan, slot surface lainnya, lalu slot underwater lintasan dengan foto permukaannya sebagai gambar kecil di pojok. Lintasan A = SR, SL, UL; lintasan B = SL, SR, UR. Urutan diturunkan dari awalan S/U di `courses.imaging_slots`, jadi urutan isi kolom itu tidak berpengaruh. Panel milik lintasan (dua slot di `imaging_slots`) diberi border lime. Setiap panel punya strip riwayat (thumbnail, terbaru di kiri); klik membuka `CaptureLightbox` (dialog, ESC, fokus terkunci, ←/→, foto permukaan berdampingan, posisi/SoG/CoG, kotak deteksi).

@@ -21,7 +21,7 @@ npm run db:types
 npm install --save-exact lucide-react@latest   # catat versinya di tabel stack AGENTS.md
 ```
 
-Salin aset dari repo 2026 ke `public/` bila tersedia: `logo.png`, `kapalasli.png` (ikon kapal). Bila tidak ada, minta ke manusia; jangan membuat gambar pengganti.
+Salin aset dari repo 2026 ke `public/` bila tersedia: `logo.png`, `kapal.png` (ikon kapal). Bila tidak ada, minta ke manusia; jangan membuat gambar pengganti.
 
 ## 3. [AGENT] Gaya visual (ikuti `docs/ui-reference-2026.md`)
 
@@ -63,7 +63,7 @@ Ganti tampilan komponen Tahap 1 (sumber data tetap `useLive`). Hapus komponen la
 - Overlay kiri bawah, bergaya gelap: **Kapal** (zoom ke kapal), **Arena** (fit ke grid, pengganti tombol Recenter), **Reset** (bersihkan jejak di layar saja, data tidak dihapus).
 - Grid berlabel di tengah sel: huruf = baris dari bawah (A), angka = kolom dari kiri (1), contoh `C3`. Ukuran grid tetap dari `courses` (default 6 × 6 @ 5 m).
 - Marker cukup besar untuk proyektor: buoy 12–14 px, kotak imaging 1,5 m. Tambahkan legenda kecil, skala, dan atribusi OSM (wajib).
-- Ikon kapal memakai `kapalasli.png`, diputar sesuai **heading**. Jejak garis lime atau merah putus-putus yang tetap terlihat di tile terang.
+- Ikon kapal memakai `kapal.png`, diputar sesuai **heading**. Jejak garis lime atau merah putus-putus yang tetap terlihat di tile terang.
 - Jangan mereset rotasi atau posisi peta saat data baru masuk.
 
 **Camera Feeds** (`components/captures/`): **3 panel**
@@ -89,7 +89,7 @@ Ganti tampilan komponen Tahap 1 (sumber data tetap `useLive`). Hapus komponen la
 **Lainnya**
 - `PanelBoundary` tetap membungkus setiap panel, digayakan sesuai tema.
 - Halaman 404 bergaya 2026 (ikon kapal mengambang).
-- Hapus `ThemeToggle` dan `RunInfo` bila sudah tergantikan header baru. Info run (label, Official, Simulator) dipindah ke header panel peta.
+- Hapus `ThemeToggle` dan `RunInfo` bila sudah tergantikan header baru. Info run (label, Simulator) dipindah ke header panel peta.
 
 ## 6. [AGENT] Dokumen
 

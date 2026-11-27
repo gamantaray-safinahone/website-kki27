@@ -4,30 +4,20 @@ import L from "leaflet";
 import { useEffect } from "react";
 
 import { offsetMeters } from "@/lib/geo";
+import { COURSE_ITEM_LABELS, type CourseItemKind } from "@/lib/mission";
 import type { CourseItem } from "@/lib/queries";
 
 const BUOY_PX = 14;
 const BUOY_ICONS: Record<string, string> = {
   buoy_red: "/merah.png",
   buoy_green: "/hijau.png",
-  buoy_blue: "/bulat_biru.svg",
-};
-
-const KIND_LABELS: Record<string, string> = {
-  start: "Start",
-  finish: "Finish",
-  buoy_red: "Red buoy",
-  buoy_green: "Green buoy",
-  buoy_blue: "Docking ball",
-  imaging_surface: "Surface imaging (green box)",
-  imaging_underwater: "Underwater imaging (blue box)",
-  waypoint: "Waypoint",
+  buoy_blue: "/biru.svg",
 };
 
 const BOX_HALF_M = 0.75;
 
 function toLayer(item: CourseItem): L.Layer {
-  const label = `${KIND_LABELS[item.kind] ?? item.kind} ${item.seq}${item.label ? ` · ${item.label}` : ""}`;
+  const label = `${COURSE_ITEM_LABELS[item.kind as CourseItemKind] ?? item.kind} ${item.seq}${item.label ? ` · ${item.label}` : ""}`;
   const at: L.LatLngExpression = [item.lat, item.lon];
 
   const buoyIcon = BUOY_ICONS[item.kind];

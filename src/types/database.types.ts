@@ -188,7 +188,6 @@ export type Database = {
           imaging_slots: string[]
           lintasan: string
           updated_at: string
-          zoom: number
         }
         Insert: {
           center_lat?: number | null
@@ -200,7 +199,6 @@ export type Database = {
           imaging_slots: string[]
           lintasan: string
           updated_at?: string
-          zoom?: number
         }
         Update: {
           center_lat?: number | null
@@ -212,7 +210,6 @@ export type Database = {
           imaging_slots?: string[]
           lintasan?: string
           updated_at?: string
-          zoom?: number
         }
         Relationships: []
       }
@@ -261,7 +258,6 @@ export type Database = {
           end_reason: string | null
           ended_at: string | null
           id: string
-          is_official: boolean
           label: string | null
           lintasan: string | null
           notes: string | null
@@ -275,7 +271,6 @@ export type Database = {
           end_reason?: string | null
           ended_at?: string | null
           id?: string
-          is_official?: boolean
           label?: string | null
           lintasan?: string | null
           notes?: string | null
@@ -289,7 +284,6 @@ export type Database = {
           end_reason?: string | null
           ended_at?: string | null
           id?: string
-          is_official?: boolean
           label?: string | null
           lintasan?: string | null
           notes?: string | null
