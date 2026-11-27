@@ -125,9 +125,10 @@ Contoh:
 1. Pi menyimpan foto asli di SD card (`~/captures/<run_id>/<slot>/`) sebagai cadangan bukti.
 2. Pi membuat versi web (sisi panjang 1280 px, JPEG kualitas 80, target di bawah 300 KB) dan thumbnail (320 px, kualitas 70). Batas bucket 4 MB per file, hanya JPEG/PNG.
 3. Nama file: `runs/<run_id>/<slot>/<slot>_<YYYYMMDDTHHMMSSmmm>Z.jpg`, thumbnail berakhiran `_thumb.jpg`. Contoh: `runs/6f1c…/UL/UL_20270915T023210123Z.jpg`.
-4. Unggah kedua file dulu, baru insert baris `captures`. Database menolak path di luar folder `runs/<run_id>/<slot>/`.
-5. Posisi, SOG, COG, dan heading diambil dari sampel terakhir. `detection` berisi `[{"cls": "green_box", "conf": 0.91, "bbox": [x, y, w, h]}]` relatif 0–1 terhadap foto web. `meta` berisi `width`, `height`, `camera`.
-6. Antrean foto disimpan di disk dan dicoba terus sampai berhasil, karena foto menentukan nilai imaging.
+4. Untuk slot underwater (UL/UR), Pi juga mengunggah foto permukaan yang diambil pada saat yang sama, di folder yang sama, dengan nama `..._surface.jpg` dan thumbnail `..._surface_thumb.jpg`. Contoh: `runs/6f1c…/UL/UL_20270915T023210123Z_surface.jpg`. Path-nya diisi di kolom `surface_path` dan `surface_thumb_path`. Slot surface (SL/SR) membiarkan kedua kolom null; database menolak bila diisi.
+5. Unggah semua file dulu (termasuk foto permukaan untuk slot underwater), baru insert baris `captures`. Database menolak path di luar folder `runs/<run_id>/<slot>/`.
+6. Posisi, SOG, COG, dan heading diambil dari sampel terakhir. `detection` berisi `[{"cls": "green_box", "conf": 0.91, "bbox": [x, y, w, h]}]` relatif 0–1 terhadap foto web. `meta` berisi `width`, `height`, `camera`.
+7. Antrean foto disimpan di disk dan dicoba terus sampai berhasil, karena foto menentukan nilai imaging.
 
 Slot per lintasan: A memakai UL + SR, B memakai SL + UR (S = surface, U = underwater, L/R = kiri/kanan).
 

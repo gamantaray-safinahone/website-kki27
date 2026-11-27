@@ -6,10 +6,12 @@ import { useEffect } from "react";
 import { offsetMeters } from "@/lib/geo";
 import type { CourseItem } from "@/lib/queries";
 
-const BUOY_COLORS: Record<string, string> = {
-  buoy_red: "#dc2626",
-  buoy_green: "#16a34a",
-  buoy_blue: "#2563eb",
+// Ikon buoy dari dashboard 2026, diperbesar supaya terlihat di proyektor.
+const BUOY_PX = 14;
+const BUOY_ICONS: Record<string, string> = {
+  buoy_red: "/merah.png",
+  buoy_green: "/hijau.png",
+  buoy_blue: "/bulat_biru.svg",
 };
 
 const KIND_LABELS: Record<string, string> = {
@@ -29,13 +31,15 @@ function toLayer(item: CourseItem): L.Layer {
   const label = `${KIND_LABELS[item.kind] ?? item.kind} ${item.seq}${item.label ? ` · ${item.label}` : ""}`;
   const at: L.LatLngExpression = [item.lat, item.lon];
 
-  if (item.kind in BUOY_COLORS) {
-    return L.circleMarker(at, {
-      radius: 6,
-      color: "#ffffff",
-      weight: 1.5,
-      fillColor: BUOY_COLORS[item.kind],
-      fillOpacity: 1,
+  const buoyIcon = BUOY_ICONS[item.kind];
+  if (buoyIcon) {
+    return L.marker(at, {
+      keyboard: false,
+      icon: L.icon({
+        iconUrl: buoyIcon,
+        iconSize: [BUOY_PX, BUOY_PX],
+        iconAnchor: [BUOY_PX / 2, BUOY_PX / 2],
+      }),
     }).bindTooltip(label);
   }
   if (item.kind === "imaging_surface" || item.kind === "imaging_underwater") {
@@ -55,23 +59,22 @@ function toLayer(item: CourseItem): L.Layer {
     ).bindTooltip(label);
   }
   if (item.kind === "start" || item.kind === "finish") {
-    return L.circleMarker(at, {
-      radius: 8,
-      color: "#0f172a",
-      weight: 3,
-      fillColor: "#fff",
-      fillOpacity: 1,
-    }).bindTooltip(KIND_LABELS[item.kind], {
-      permanent: true,
-      direction: "top",
-      offset: [0, -8],
-    });
+    // Banner hitam "START" / "FINISH" seperti spanduk di arena.
+    return L.marker(at, {
+      keyboard: false,
+      icon: L.divIcon({
+        className: "course-banner",
+        html: `<span>${item.kind === "start" ? "START" : "FINISH"}</span>`,
+        iconSize: undefined,
+      }),
+    }).bindTooltip(label);
   }
   return L.circleMarker(at, {
-    radius: 4,
-    color: "#64748b",
-    weight: 1,
-    fillOpacity: 0.8,
+    radius: 5,
+    color: "#475569",
+    weight: 1.5,
+    fillColor: "#ffffff",
+    fillOpacity: 0.9,
   }).bindTooltip(label);
 }
 

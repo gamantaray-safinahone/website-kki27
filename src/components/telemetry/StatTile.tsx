@@ -1,31 +1,41 @@
 import type { ReactNode } from "react";
 
-// Satu angka besar dengan label dan satuan. Ukuran huruf membesar di layar lebar (TV panitia).
+export type StatTone = "normal" | "warning" | "critical";
+
+const TONE_CLASSES: Record<StatTone, string> = {
+  normal: "text-kapur-muda",
+  warning: "text-amber-400 light:text-amber-700",
+  critical: "text-red-400 light:text-red-700",
+};
+
+// Satu metrik gaya 2026: label kecil sage, nilai besar kapur.
+// Ukurannya padat di layar laptop dan membesar di layar tinggi (TV panitia).
 export function StatTile({
   label,
   value,
-  unit,
   sub,
+  tone = "normal",
+  className = "",
 }: {
-  label: string;
-  value: string;
-  unit?: string;
+  label: ReactNode;
+  value: ReactNode;
   sub?: ReactNode;
+  tone?: StatTone;
+  className?: string;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-500/20 p-3">
-      <p className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
+    <div className={`tall:py-3.5 min-w-0 px-3 py-2 ${className}`}>
+      <p className="text-sage-dingin tall:text-sm flex items-center gap-1.5 text-xs font-semibold">
         {label}
       </p>
-      <p className="mt-1 font-mono text-2xl font-semibold tabular-nums xl:text-4xl">
+      <p
+        className={`tall:mt-1 tall:text-[1.3rem] mt-0.5 truncate text-lg tracking-tight tabular-nums ${TONE_CLASSES[tone]}`}
+      >
         {value}
-        {unit && (
-          <span className="ml-1 text-base font-normal text-neutral-500">
-            {unit}
-          </span>
-        )}
       </p>
-      {sub && <p className="mt-0.5 text-xs text-neutral-500">{sub}</p>}
+      {sub && (
+        <p className="text-sage-dingin truncate text-xs tabular-nums">{sub}</p>
+      )}
     </div>
   );
 }

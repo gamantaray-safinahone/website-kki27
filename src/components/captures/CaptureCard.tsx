@@ -1,56 +1,111 @@
-"use client";
+/* eslint-disable @next/next/no-img-element -- foto dari Supabase Storage, sengaja <img> (bukan optimasi gambar Vercel) */
+import { Camera } from "lucide-react";
 
-import { formatClock, formatCoord } from "@/lib/format";
-import { SLOT_LABELS, type Slot } from "@/lib/mission";
+import { formatWibTime } from "@/lib/format";
+import type { Slot } from "@/lib/mission";
 import { capturePublicUrl, type Capture } from "@/lib/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-// Thumbnail dimuat lebih dulu; foto penuh dibuka di tab baru saat diklik.
+import { CaptureStrip } from "./CaptureStrip";
+
+// Satu panel kamera: foto terbaru slot (thumbnail), kode slot, jam WIB, label,
+// dan strip riwayat. Panel underwater juga menampilkan foto permukaan yang
+// diambil bersamaan, sebagai gambar kecil di pojok.
 export function CaptureCard({
-  slot,
-  capture,
+  code,
+  label,
+  captures,
+  highlight,
+  withSurface = false,
+  onOpen,
 }: {
-  slot: Slot;
-  capture: Capture | null;
+  code: Slot;
+  label: string;
+  captures: Capture[]; // urut terbaru dulu
+  highlight: boolean; // slot dipakai lintasan aktif
+  withSurface?: boolean;
+  onOpen: (id: number) => void;
 }) {
   const supabase = createSupabaseBrowserClient();
+  const latest = captures[0] ?? null;
+  const surfaceThumb = latest
+    ? (latest.surface_thumb_path ?? latest.surface_path)
+    : null;
+  const overlay =
+    "pointer-events-none absolute bg-black/60 px-1.5 py-0.5 text-xs text-white";
 
   return (
-    <figure className="overflow-hidden rounded-lg border border-neutral-500/20">
-      <div className="flex aspect-video items-center justify-center bg-neutral-500/10">
-        {capture ? (
-          <a
-            href={capturePublicUrl(supabase, capture.storage_path)}
-            target="_blank"
-            rel="noreferrer"
-            className="h-full w-full"
+    <article
+      aria-label={`${label} camera`}
+      className={`bg-surface tall:p-2 flex min-h-0 flex-col border p-1.5 xl:flex-1 ${
+        highlight ? "border-lime-neon" : "border-transparent"
+      }`}
+    >
+      <div className="light:bg-slate-200 relative min-h-44 flex-1 overflow-hidden bg-black/30 xl:min-h-0">
+        {latest ? (
+          <button
+            type="button"
+            onClick={() => onOpen(latest.id)}
+            aria-label={`Open latest ${label} photo`}
+            className="absolute inset-0"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- sengaja <img>, bukan optimasi Vercel */}
             <img
               src={capturePublicUrl(
                 supabase,
-                capture.thumb_path ?? capture.storage_path,
+                latest.thumb_path ?? latest.storage_path,
               )}
-              alt={`${SLOT_LABELS[slot]} photo`}
-              loading="lazy"
-              className="h-full w-full object-cover"
+              alt=""
+              className="h-full w-full object-cover opacity-90"
             />
-          </a>
+          </button>
         ) : (
-          <span className="text-sm text-neutral-500">No photo yet</span>
+          <div className="text-sage-dingin absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <Camera className="tall:size-12 size-8" aria-hidden />
+            <span className="text-xs tracking-[0.2em] uppercase">
+              No photo yet
+            </span>
+          </div>
+        )}
+
+        <span
+          className={`${overlay} top-1.5 left-1.5 font-bold tracking-widest`}
+        >
+          {code}
+        </span>
+        {latest && (
+          <time
+            dateTime={latest.captured_at}
+            className={`${overlay} top-1.5 right-1.5 tabular-nums`}
+          >
+            {formatWibTime(latest.captured_at)} WIB
+          </time>
+        )}
+        <span
+          className={`${overlay} bottom-0 left-0 font-semibold tracking-[0.12em]`}
+        >
+          {label}
+        </span>
+
+        {withSurface && latest && (
+          <div className="pointer-events-none absolute right-1.5 bottom-1.5 aspect-video w-[34%] overflow-hidden border border-white/70 bg-black/70 shadow-lg">
+            {surfaceThumb ? (
+              <img
+                src={capturePublicUrl(supabase, surfaceThumb)}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="flex h-full items-center justify-center px-1 text-center text-[10px] leading-tight text-white/80">
+                No surface photo
+              </span>
+            )}
+          </div>
         )}
       </div>
-      <figcaption className="p-2 text-xs">
-        <p className="font-semibold">
-          {slot} · {SLOT_LABELS[slot]}
-        </p>
-        {capture && (
-          <p className="text-neutral-500">
-            {formatClock(capture.captured_at)} · {formatCoord(capture.lat)},{" "}
-            {formatCoord(capture.lon)}
-          </p>
-        )}
-      </figcaption>
-    </figure>
+
+      {captures.length > 1 && (
+        <CaptureStrip label={label} captures={captures} onOpen={onOpen} />
+      )}
+    </article>
   );
 }

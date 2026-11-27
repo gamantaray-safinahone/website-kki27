@@ -50,23 +50,62 @@ export function gridLines(
 ): LatLon[][] {
   const width = cols * cellM;
   const height = rows * cellM;
-  const rad = (bearingDeg * Math.PI) / 180;
-  // x = timur lokal grid, y = utara lokal grid; diputar searah jarum jam.
-  const toLatLon = (x: number, y: number) =>
-    offsetMeters(
-      center,
-      x * Math.cos(rad) + y * Math.sin(rad),
-      -x * Math.sin(rad) + y * Math.cos(rad),
-    );
+  const at = (x: number, y: number) => gridPoint(center, x, y, bearingDeg);
 
   const lines: LatLon[][] = [];
   for (let r = 0; r <= rows; r++) {
     const y = -height / 2 + r * cellM;
-    lines.push([toLatLon(-width / 2, y), toLatLon(width / 2, y)]);
+    lines.push([at(-width / 2, y), at(width / 2, y)]);
   }
   for (let c = 0; c <= cols; c++) {
     const x = -width / 2 + c * cellM;
-    lines.push([toLatLon(x, -height / 2), toLatLon(x, height / 2)]);
+    lines.push([at(x, -height / 2), at(x, height / 2)]);
   }
   return lines;
+}
+
+// Titik tengah setiap sel grid beserta labelnya.
+// Huruf = baris dihitung dari bawah (A), angka = kolom dihitung dari kiri (1): "C3".
+export type GridCell = { label: string; center: LatLon };
+
+export function gridCells(
+  center: LatLon,
+  rows: number,
+  cols: number,
+  cellM: number,
+  bearingDeg: number,
+): GridCell[] {
+  const width = cols * cellM;
+  const height = rows * cellM;
+  const cells: GridCell[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      cells.push({
+        label: `${String.fromCharCode(65 + r)}${c + 1}`,
+        center: gridPoint(
+          center,
+          -width / 2 + (c + 0.5) * cellM,
+          -height / 2 + (r + 0.5) * cellM,
+          bearingDeg,
+        ),
+      });
+    }
+  }
+  return cells;
+}
+
+// Titik di koordinat lokal grid: x = timur lokal, y = utara lokal (meter dari pusat),
+// diputar searah jarum jam sebesar bearingDeg.
+function gridPoint(
+  center: LatLon,
+  x: number,
+  y: number,
+  bearingDeg: number,
+): LatLon {
+  const rad = (bearingDeg * Math.PI) / 180;
+  return offsetMeters(
+    center,
+    x * Math.cos(rad) + y * Math.sin(rad),
+    -x * Math.sin(rad) + y * Math.cos(rad),
+  );
 }

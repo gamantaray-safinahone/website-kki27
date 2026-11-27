@@ -1,77 +1,103 @@
 "use client";
 
+import { Battery, BatteryLow, BatteryWarning, Compass } from "lucide-react";
+
+import { DataAge } from "@/components/status/DataAge";
 import { Card } from "@/components/ui/Card";
-import {
-  formatCoord,
-  formatDeg,
-  formatKnots,
-  formatNumber,
-} from "@/lib/format";
+import { formatCoordDeg, formatDeg, formatNumber } from "@/lib/format";
 import { useLive } from "@/lib/live/store";
 
-import { StatTile } from "./StatTile";
+import { StatTile, type StatTone } from "./StatTile";
 
-const GPS_FIX_LABELS = [
-  "No GPS",
-  "No fix",
-  "2D fix",
-  "3D fix",
-  "DGPS",
-  "RTK float",
-  "RTK fixed",
-];
+const BATTERY_WARNING_PCT = 30;
+const BATTERY_CRITICAL_PCT = 15;
 
+// Ambang baterai. Ditampilkan dengan teks juga, bukan hanya warna.
+function batteryState(pct: number | null | undefined): {
+  tone: StatTone;
+  text: string;
+} | null {
+  if (pct == null) return null;
+  if (pct <= BATTERY_CRITICAL_PCT)
+    return { tone: "critical", text: "Critical" };
+  if (pct <= BATTERY_WARNING_PCT) return { tone: "warning", text: "Low" };
+  return { tone: "normal", text: "OK" };
+}
+
+// Navigation Data gaya 2026: grid bergaris, ditambah Heading dan detail baterai.
 export function TelemetryPanel() {
   const t = useLive((s) => s.latest);
 
+  const battery = batteryState(t?.battery_pct);
+  const BatteryIcon =
+    battery?.tone === "critical"
+      ? BatteryWarning
+      : battery?.tone === "warning"
+        ? BatteryLow
+        : Battery;
+  const volts =
+    t?.battery_v != null ? `${formatNumber(t.battery_v, 2)} V` : null;
+  const amps =
+    t?.battery_a != null ? `${formatNumber(t.battery_a, 1)} A` : null;
+
+  // Sel kiri diberi garis kanan; semua sel diberi garis bawah.
+  const cell = "border-b border-border";
+  const left = `${cell} border-r`;
+
   return (
-    <Card title="Telemetry">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <Card title="Navigation Data" icon={Compass} className="shrink-0">
+      <div className="grid grid-cols-2">
         <StatTile
-          label="SOG"
-          value={formatNumber(t?.sog_ms, 2)}
-          unit="m/s"
-          sub={`${formatKnots(t?.sog_ms)} kn`}
+          className={left}
+          label="Latitude"
+          value={formatCoordDeg(t?.lat)}
         />
         <StatTile
-          label="COG"
-          value={formatDeg(t?.cog_deg)}
-          sub="Course over ground"
+          className={cell}
+          label="Longitude"
+          value={formatCoordDeg(t?.lon)}
         />
         <StatTile
+          className={left}
+          label="SoG"
+          value={t?.sog_ms != null ? `${formatNumber(t.sog_ms, 1)} m/s` : "—"}
+        />
+        <StatTile className={cell} label="CoG" value={formatDeg(t?.cog_deg)} />
+        <StatTile
+          className={left}
           label="Heading"
           value={formatDeg(t?.heading_deg)}
-          sub="Compass"
         />
         <StatTile
-          label="Battery"
-          value={formatNumber(t?.battery_v, 1)}
-          unit="V"
-          sub={
-            t?.battery_pct != null
-              ? `${Math.round(t.battery_pct)}% · ${formatNumber(t.battery_a, 1)} A`
-              : undefined
+          className={`${cell} bg-foreground/5`}
+          tone={battery?.tone}
+          label={
+            <>
+              <BatteryIcon className="text-lime-neon size-4" aria-hidden />
+              Battery
+            </>
           }
-        />
-        <StatTile
-          label="Mode"
-          value={t?.fcu_mode ?? "—"}
-          sub={t ? (t.armed ? "Armed" : "Disarmed") : undefined}
-        />
-        <StatTile
-          label="GPS"
-          value={t?.gps_sats != null ? String(t.gps_sats) : "—"}
-          unit="sats"
+          value={
+            t?.battery_pct != null ? (
+              <>
+                {Math.round(t.battery_pct)}%
+                <span className="ml-2 text-xs font-semibold tracking-wide uppercase">
+                  {battery?.text}
+                </span>
+              </>
+            ) : (
+              (volts ?? "—")
+            )
+          }
           sub={
-            t?.gps_fix != null
-              ? (GPS_FIX_LABELS[t.gps_fix] ?? `Fix ${t.gps_fix}`)
-              : undefined
+            t?.battery_pct != null && (volts || amps)
+              ? [volts, amps].filter(Boolean).join(" · ")
+              : amps
           }
         />
       </div>
-      <p className="mt-3 font-mono text-xs text-neutral-500">
-        {formatCoord(t?.lat)}, {formatCoord(t?.lon)}
-        {t?.mission_state && ` · ${t.mission_state}`}
+      <p className="text-sage-dingin tall:px-4 tall:py-2 px-3 py-1.5 text-xs">
+        <DataAge />
       </p>
     </Card>
   );

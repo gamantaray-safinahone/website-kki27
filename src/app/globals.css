@@ -1,26 +1,163 @@
 @import "tailwindcss";
 
-/* Mode gelap mengikuti kelas .dark yang dipasang next-themes. */
+/* Tema dipasang next-themes sebagai kelas .dark / .light di <html>. Default gelap. */
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
+@custom-variant tall (@media (min-height: 50rem));
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #03161a;
+  --foreground: #d8e6dd;
+
+  --hijau-tua: #1a3a38;
+  --teal-gelap: #061e22;
+  --midnight-hitam: #01090b;
+  --sage-dingin: #6b8478;
+  --kapur-muda: #d8e6dd;
+  --lime-neon: #d9f21a;
+  --on-accent: #01090b;
+
+  --surface: rgba(6, 30, 34, 0.9);
+  --surface-strong: rgba(1, 9, 11, 0.96);
+  --border: rgba(107, 132, 120, 0.28);
 }
 
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+/* Tema terang. Aksen #15803d dengan teks putih lolos kontras AA */
+:root.light {
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+
+  --hijau-tua: #e2e8f0;
+  --teal-gelap: #f8fafc;
+  --midnight-hitam: #ffffff;
+  --sage-dingin: #475569;
+  --kapur-muda: #0f172a;
+  --lime-neon: #15803d;
+  --on-accent: #ffffff;
+
+  --surface: #ffffff;
+  --surface-strong: #ffffff;
+  --border: rgba(15, 23, 42, 0.1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-hijau-tua: var(--hijau-tua);
+  --color-teal-gelap: var(--teal-gelap);
+  --color-midnight-hitam: var(--midnight-hitam);
+  --color-sage-dingin: var(--sage-dingin);
+  --color-kapur-muda: var(--kapur-muda);
+  --color-lime-neon: var(--lime-neon);
+  --color-on-accent: var(--on-accent);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-border: var(--border);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(26, 58, 56, 0.8), transparent 32%),
+    radial-gradient(
+      circle at top right,
+      rgba(217, 242, 26, 0.12),
+      transparent 20%
+    ),
+    linear-gradient(
+      180deg,
+      var(--teal-gelap) 0%,
+      var(--background) 48%,
+      var(--midnight-hitam) 100%
+    );
+  background-attachment: fixed;
   color: var(--foreground);
+}
+
+.light body {
+  background: var(--background);
+}
+
+::selection {
+  background: rgba(217, 242, 26, 0.25);
+  color: var(--kapur-muda);
+}
+
+/* Scrollbar tipis seperti 2026 */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 132, 120, 0.4);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lime-neon);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 132, 120, 0.4) transparent;
+}
+
+/* ---- Peta ----
+   Peta tetap berlatar terang (tile OSM) supaya kontras dengan panel gelap.
+   Selektor diawali .leaflet-container supaya menang dari leaflet.css. */
+.leaflet-container {
+  background: #dfeccf;
+  font-family: inherit;
+}
+.leaflet-container .leaflet-bar,
+.leaflet-container .leaflet-control-layers {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.leaflet-container .leaflet-bar a,
+.leaflet-container .leaflet-control-layers {
+  background: var(--surface-strong);
+  color: var(--kapur-muda);
+}
+.leaflet-container .leaflet-bar a {
+  border-bottom-color: var(--border);
+}
+.leaflet-container .leaflet-bar a:hover {
+  background: var(--hijau-tua);
+}
+.leaflet-container .leaflet-control-scale-line {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #0f172a;
+  color: #0f172a;
+}
+
+/* Label sel grid ("C3") di tengah sel */
+.grid-label span {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: rgba(15, 23, 42, 0.3);
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
+}
+
+/* Banner Start / Finish */
+.course-banner span {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  border: 1px solid #ffffff;
+  background: #0f172a;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #ffffff;
 }
 
 /* Ikon kapal bergeser halus di antara sampel 1 Hz. */
@@ -32,13 +169,24 @@ body {
   transition: none;
 }
 .boat-marker .boat-icon {
+  width: 30px;
+  height: 50px;
   transition: transform 0.5s ease-out;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+}
+.boat-marker .boat-icon img {
+  width: 30px;
+  height: 50px;
+  max-width: none;
 }
 
-/* Tile peta sedikit diredupkan di mode gelap. */
-.dark .leaflet-container {
-  background: #1f2937;
-}
-.dark .leaflet-tile-pane {
-  filter: brightness(0.75);
+/* Halaman 404: ikon kapal mengambang */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
 }

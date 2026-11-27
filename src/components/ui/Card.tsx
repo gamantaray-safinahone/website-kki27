@@ -1,22 +1,27 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+// Panel standar dashboard (gaya KKI 2026): sudut tajam, garis ganda, ikon judul lime.
 export function Card({
   title,
+  icon: Icon,
   action,
   children,
   className = "",
 }: {
   title: string;
+  icon: LucideIcon;
   action?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
   return (
     <section
-      className={`rounded-xl border border-neutral-500/25 bg-white/60 p-4 dark:bg-neutral-900/60 ${className}`}
+      className={`border-border bg-surface-strong flex min-h-0 flex-col border shadow-[0_0_0_1px_var(--border)_inset] ${className}`}
     >
-      <header className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold tracking-wide text-neutral-500 uppercase">
+      <header className="border-border tall:px-5 tall:py-3.5 flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b px-4 py-2.5">
+        <h2 className="text-kapur-muda tall:text-[1.05rem] flex shrink-0 items-center gap-2.5 text-base font-medium tracking-wide">
+          <Icon className="text-lime-neon size-4 shrink-0" aria-hidden />
           {title}
         </h2>
         {action}

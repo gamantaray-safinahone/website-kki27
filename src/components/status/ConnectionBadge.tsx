@@ -3,8 +3,6 @@
 import { useLive, type RealtimeStatus } from "@/lib/live/store";
 import { useNow } from "@/lib/live/useNow";
 
-import { DataAge } from "./DataAge";
-
 const ONLINE_MS = 5_000;
 const DELAYED_MS = 15_000;
 
@@ -22,15 +20,17 @@ function boatStatus(
   ended: boolean,
   ageMs: number | null,
 ): Boat {
-  if (!hasRun) return { label: "No active run", dot: "bg-neutral-400" };
-  if (ended) return { label: "Run ended", dot: "bg-neutral-400" };
+  if (!hasRun) return { label: "No active run", dot: "bg-sage-dingin" };
+  if (ended) return { label: "Run ended", dot: "bg-sage-dingin" };
   if (ageMs == null)
-    return { label: "Waiting for data", dot: "bg-neutral-400" };
+    return { label: "Waiting for data", dot: "bg-sage-dingin" };
   if (ageMs < ONLINE_MS) return { label: "Online", dot: "bg-green-500" };
   if (ageMs < DELAYED_MS) return { label: "Delayed", dot: "bg-amber-500" };
   return { label: "Offline", dot: "bg-red-500" };
 }
 
+// Status kapal (dari umur data) dan status sambungan Realtime. Teks selalu
+// ditampilkan, jadi status tidak hanya dibedakan lewat warna titik.
 export function ConnectionBadge() {
   const now = useNow();
   const run = useLive((s) => s.run);
@@ -45,19 +45,19 @@ export function ConnectionBadge() {
   );
 
   return (
-    <div className="flex flex-col items-end gap-0.5 text-right text-sm">
-      <span className="flex items-center gap-2 font-semibold">
+    <div
+      className="flex flex-col items-end text-right leading-tight"
+      aria-live="polite"
+    >
+      <span className="text-kapur-muda tall:text-base flex items-center gap-2 text-sm font-semibold">
         <span
           className={`inline-block size-2.5 rounded-full ${boat.dot}`}
           aria-hidden
         />
         Boat: {boat.label}
       </span>
-      <span className="text-xs">
-        <span className="text-neutral-500">
-          Feed: {REALTIME_LABELS[realtime]} ·{" "}
-        </span>
-        <DataAge />
+      <span className="text-sage-dingin text-xs font-medium">
+        Feed: {REALTIME_LABELS[realtime]}
       </span>
     </div>
   );

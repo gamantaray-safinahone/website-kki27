@@ -22,6 +22,7 @@ Baca sebelum menulis kode:
 | Leaflet (tanpa react-leaflet) | 1.9.4 |
 | Zustand | 5.1.0 |
 | next-themes (tema terang/gelap) | 0.4.6 |
+| lucide-react (ikon UI) | 1.72.0 |
 | uPlot (mulai Tahap 4) | 1.6 |
 | Node.js | 24 LTS (`.nvmrc`), minimal 20.9 |
 | Package manager | npm |
@@ -67,7 +68,7 @@ Supabase CLI 3 menjalankan perintah database ke database **lokal** secara defaul
 - Cache Components aktif. Data dari Supabase dibaca di Server Component async yang dibungkus `<Suspense>`. Jangan memakai `export const dynamic`. Bila ragu, baca panduan di `node_modules/next/dist/docs/`.
 - Sesi admin memakai `src/proxy.ts` (Next.js 16 mengganti `middleware.ts` menjadi `proxy.ts`).
 - Leaflet hanya berjalan di client: komponen `"use client"` yang dimuat lewat `next/dynamic` dengan `ssr: false`.
-- Pakai font sistem, tanpa web font. Foto dari Supabase Storage ditampilkan dengan `<img>` biasa (thumbnail dulu), bukan optimasi gambar Vercel.
+- Font Inter (self-hosted oleh next/font), tanpa web font lain. Foto dari Supabase Storage ditampilkan dengan `<img>` biasa (thumbnail dulu), bukan optimasi gambar Vercel.
 - TypeScript strict; hindari `any`. Satu komponen per file, nama file komponen PascalCase.
 - Setiap panel dashboard dibungkus `PanelBoundary` (error boundary) supaya satu panel error tidak mematikan peta.
 

@@ -7,6 +7,7 @@ import { useNow } from "@/lib/live/useNow";
 const MAX_RUN_MS = 20 * 60 * 1000;
 
 // Waktu tempuh sejak fase start aktif, berhenti saat finish selesai atau run berakhir.
+// Merah bila melewati batas 20 menit.
 export function RunTimer() {
   const now = useNow();
   const events = useLive((s) => s.events);
@@ -18,7 +19,13 @@ export function RunTimer() {
   const finish = events.find(
     (e) => e.phase === "finish" && e.status === "done",
   );
-  if (!start) return <span className="font-mono text-neutral-500">--:--</span>;
+  if (!start) {
+    return (
+      <span className="text-sage-dingin tall:text-lg text-base font-semibold tabular-nums">
+        <span className="sr-only">Run time </span>--:--
+      </span>
+    );
+  }
 
   const startMs = Date.parse(start.t);
   const stopIso = finish?.t ?? endedAt;
@@ -27,10 +34,13 @@ export function RunTimer() {
 
   return (
     <span
-      className={`font-mono text-lg font-semibold tabular-nums xl:text-2xl ${
-        elapsed > MAX_RUN_MS ? "text-red-600" : ""
+      className={`tall:text-lg text-base font-semibold tabular-nums ${
+        elapsed > MAX_RUN_MS
+          ? "light:text-red-700 text-red-400"
+          : "text-kapur-muda"
       }`}
     >
+      <span className="sr-only">Run time </span>
       {formatDuration(elapsed)}
     </span>
   );

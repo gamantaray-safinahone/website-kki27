@@ -3,14 +3,14 @@
 // Satu-satunya tempat yang membuka koneksi Realtime dan mengisi store.
 // Alur: muat konfigurasi -> ikuti app_state.live_run_id -> muat snapshot run
 // -> langganan perubahan -> catch-up setiap tersambung ulang atau tab aktif lagi.
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { fetchConfig, fetchRunSnapshot } from "@/lib/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { catchUp } from "./catchup";
 import { subscribeConfig, subscribeRun } from "./channels";
-import { useLive } from "./store";
+import { useLive, type RealtimeStatus } from "./store";
 
 const POLL_AFTER_MS = 10_000; // mulai polling bila Realtime putus lebih dari ini
 const POLL_EVERY_MS = 3_000;
@@ -21,6 +21,9 @@ function errorMessage(error: unknown): string {
 
 export function LiveProvider({ children }: { children: ReactNode }) {
   const liveRunId = useLive((s) => s.appState?.live_run_id ?? null);
+  // Status terakhir channel config. Dipakai sebagai status Feed saat tidak ada
+  // run yang diikuti, supaya badge tidak tertahan di "Connecting…".
+  const configFeed = useRef<RealtimeStatus>("connecting");
 
   // 1. Konfigurasi global: app_state, lintasan, objek lintasan, perubahan run.
   useEffect(() => {
@@ -47,6 +50,11 @@ export function LiveProvider({ children }: { children: ReactNode }) {
         onRun: (row) => store().applyRun(row),
       },
       (status) => {
+        configFeed.current =
+          status === "SUBSCRIBED" ? "connected" : "reconnecting";
+        if (!store().appState?.live_run_id)
+          store().setRealtime(configFeed.current);
+
         // Setelah tersambung ulang, muat ulang konfigurasi yang mungkin terlewat.
         if (status !== "SUBSCRIBED") return;
         if (!firstSubscribe) void loadConfig();
@@ -64,6 +72,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     const store = useLive.getState;
     if (!liveRunId) {
       store().loadRun(null);
+      store().setRealtime(configFeed.current);
       return;
     }
 

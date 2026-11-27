@@ -84,6 +84,8 @@ export type Database = {
           slot: string
           sog_ms: number | null
           storage_path: string
+          surface_path: string | null
+          surface_thumb_path: string | null
           thumb_path: string | null
         }
         Insert: {
@@ -101,6 +103,8 @@ export type Database = {
           slot: string
           sog_ms?: number | null
           storage_path: string
+          surface_path?: string | null
+          surface_thumb_path?: string | null
           thumb_path?: string | null
         }
         Update: {
@@ -118,6 +122,8 @@ export type Database = {
           slot?: string
           sog_ms?: number | null
           storage_path?: string
+          surface_path?: string | null
+          surface_thumb_path?: string | null
           thumb_path?: string | null
         }
         Relationships: [

@@ -6,51 +6,45 @@ import L from "leaflet";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { gridLines } from "@/lib/geo";
-import { selectCourse, useLive } from "@/lib/live/store";
-import type { Course } from "@/lib/queries";
+import { useLive } from "@/lib/live/store";
 
 import { BoatMarker } from "./BoatMarker";
 import { CourseLayer } from "./CourseLayer";
 import { GridLayer } from "./GridLayer";
+import { MapControls } from "./MapControls";
+import { MapLegend } from "./MapLegend";
 import { TrailLayer } from "./TrailLayer";
 
 // Tampilan awal sebelum ada koordinat lintasan maupun posisi kapal (Indonesia).
 const FALLBACK_VIEW: L.LatLngExpression = [-2.5, 118];
 const BOAT_ZOOM = 20;
+const FIT_OPTIONS: L.FitBoundsOptions = { padding: [24, 24], maxZoom: 22 };
 
-// Batas grid lintasan, dipakai untuk menyesuaikan zoom peta ke area lomba.
-function courseBounds(course: Course | null): L.LatLngBounds | null {
-  if (!course || course.center_lat == null || course.center_lon == null)
-    return null;
-  const points = gridLines(
-    { lat: course.center_lat, lon: course.center_lon },
-    course.grid_rows,
-    course.grid_cols,
-    course.grid_cell_m,
-    course.grid_bearing_deg,
-  ).flat();
-  return L.latLngBounds(points.map((p) => [p.lat, p.lon]));
-}
-
-export default function LeafletMap() {
+export default function LeafletMap({ lintasan }: { lintasan: string }) {
   const [map, setMap] = useState<L.Map | null>(null);
-  const course = useLive(selectCourse);
+  const course = useLive((s) => s.courses[lintasan] ?? null);
   const allItems = useLive((s) => s.items);
   const runId = useLive((s) => s.run?.id ?? null);
+  const hasBoat = useLive((s) => s.latest?.lat != null && s.latest.lon != null);
+  // Reset jejak hanya di layar ini, berlaku untuk run saat tombol ditekan.
+  const [trailReset, setTrailReset] = useState<{
+    runId: string | null;
+    t: number;
+  } | null>(null);
 
   const items = useMemo(
-    () =>
-      Object.values(allItems).filter((i) => i.lintasan === course?.lintasan),
-    [allItems, course?.lintasan],
+    () => Object.values(allItems).filter((i) => i.lintasan === lintasan),
+    [allItems, lintasan],
   );
 
   // Peta dibuat saat elemen <div> dipasang dan dihapus saat dilepas.
   const containerRef = useCallback((element: HTMLDivElement | null) => {
     if (!element) return;
-    const m = L.map(element, { maxZoom: 22, zoomSnap: 0.5 }).setView(
-      FALLBACK_VIEW,
-      5,
-    );
+    const m = L.map(element, {
+      maxZoom: 22,
+      zoomSnap: 0.5,
+      attributionControl: true, // atribusi OSM wajib
+    }).setView(FALLBACK_VIEW, 5);
 
     const streets = L.tileLayer(
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -72,25 +66,52 @@ export default function LeafletMap() {
         attribution: "&copy; OpenSeaMap",
       },
     );
+    // Kanan atas dipakai badge lintasan + fullscreen, jadi pilihan layer di kiri atas.
     L.control
-      .layers({ Map: streets, Satellite: satellite }, { "Sea marks": seamarks })
+      .layers(
+        { Map: streets, Satellite: satellite },
+        { "Sea marks": seamarks },
+        { position: "topleft" },
+      )
       .addTo(m);
-    L.control.scale({ imperial: false }).addTo(m);
+    L.control.scale({ imperial: false, position: "bottomright" }).addTo(m);
+
+    // Ukuran wadah berubah (layout, fullscreen): Leaflet perlu menghitung ulang.
+    const resize = new ResizeObserver(() => m.invalidateSize());
+    resize.observe(element);
 
     setMap(m);
     return () => {
+      resize.disconnect();
       m.remove();
       setMap(null);
     };
   }, []);
 
-  const bounds = useMemo(() => courseBounds(course), [course]);
+  // Batas grid dihitung dari angka-angkanya saja, supaya pemuatan ulang data
+  // lintasan yang isinya sama tidak menggeser peta yang sedang dilihat penonton.
+  const centerLat = course?.center_lat ?? null;
+  const centerLon = course?.center_lon ?? null;
+  const rows = course?.grid_rows ?? 0;
+  const cols = course?.grid_cols ?? 0;
+  const cellM = course?.grid_cell_m ?? 0;
+  const bearing = course?.grid_bearing_deg ?? 0;
+  const bounds = useMemo(() => {
+    if (centerLat == null || centerLon == null) return null;
+    const points = gridLines(
+      { lat: centerLat, lon: centerLon },
+      rows,
+      cols,
+      cellM,
+      bearing,
+    ).flat();
+    return L.latLngBounds(points.map((p) => [p.lat, p.lon]));
+  }, [centerLat, centerLon, rows, cols, cellM, bearing]);
   const hasCenter = bounds != null;
 
   // Ada koordinat lintasan: sesuaikan peta ke seluruh grid lintasan.
   useEffect(() => {
-    if (map && bounds)
-      map.fitBounds(bounds, { padding: [24, 24], maxZoom: 22 });
+    if (map && bounds) map.fitBounds(bounds, FIT_OPTIONS);
   }, [map, bounds]);
 
   // Belum ada koordinat lintasan: pusatkan sekali ke posisi kapal pertama tiap run.
@@ -107,34 +128,45 @@ export default function LeafletMap() {
     return useLive.subscribe(tryCenter);
   }, [map, hasCenter, runId]);
 
-  const recenter = () => {
-    if (!map) return;
+  const zoomToBoat = () => {
     const latest = useLive.getState().latest;
-    if (bounds) {
-      map.fitBounds(bounds, { padding: [24, 24], maxZoom: 22 });
-    } else if (latest?.lat != null && latest.lon != null) {
+    if (map && latest?.lat != null && latest.lon != null) {
       map.setView([latest.lat, latest.lon], BOAT_ZOOM);
     }
   };
 
+  const fitArena = () => {
+    if (map && bounds) map.fitBounds(bounds, FIT_OPTIONS);
+    else zoomToBoat();
+  };
+
+  const resetTrail = () => {
+    const trail = useLive.getState().trail;
+    const last = trail[trail.length - 1];
+    if (last) setTrailReset({ runId, t: last.t });
+  };
+
+  const hiddenUntilT =
+    trailReset && trailReset.runId === runId ? trailReset.t : null;
+
   return (
     <>
-      <div ref={containerRef} className="h-full w-full" />
-      <button
-        type="button"
-        onClick={recenter}
-        className="absolute right-3 bottom-8 z-[1000] rounded-md border border-neutral-500/40 bg-white px-2 py-1 text-xs font-medium text-neutral-800 shadow"
-      >
-        Recenter
-      </button>
+      <div ref={containerRef} className="absolute inset-0" />
       {map && (
         <>
           <GridLayer map={map} course={course} />
           <CourseLayer map={map} items={items} />
-          <TrailLayer map={map} />
+          <TrailLayer map={map} hiddenUntilT={hiddenUntilT} />
           <BoatMarker map={map} />
         </>
       )}
+      <MapControls
+        onBoat={zoomToBoat}
+        onArena={fitArena}
+        onReset={resetTrail}
+        hasBoat={hasBoat}
+      />
+      <MapLegend />
     </>
   );
 }

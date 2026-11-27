@@ -7,16 +7,17 @@ import { destination } from "@/lib/geo";
 import { useLive } from "@/lib/live/store";
 import type { Telemetry } from "@/lib/queries";
 
-const BOAT_SVG = `<div class="boat-icon"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 2 L19 21 L12 17 L5 21 Z" fill="#f97316" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/></svg></div>`;
+// Ikon kapal dari dashboard 2026 (haluan menghadap ke atas), proporsi gambar dijaga.
+const BOAT_HTML = `<div class="boat-icon"><img src="/kapalasli3.png" alt="" draggable="false" /></div>`;
 
 // Ikon kapal berputar sesuai heading (arah haluan), plus garis putus-putus arah COG.
 export function BoatMarker({ map }: { map: L.Map }) {
   useEffect(() => {
     const icon = L.divIcon({
-      html: BOAT_SVG,
+      html: BOAT_HTML,
       className: "boat-marker",
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
+      iconSize: [30, 50],
+      iconAnchor: [15, 25],
     });
     const marker = L.marker([0, 0], {
       icon,

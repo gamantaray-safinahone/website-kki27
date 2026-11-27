@@ -35,10 +35,10 @@ export const SLOTS = ["SL", "SR", "UL", "UR"] as const;
 export type Slot = (typeof SLOTS)[number];
 
 export const SLOT_LABELS: Record<Slot, string> = {
-  SL: "Surface · Left",
-  SR: "Surface · Right",
-  UL: "Underwater · Left",
-  UR: "Underwater · Right",
+  SL: "Surface Left",
+  SR: "Surface Right",
+  UL: "Underwater Left",
+  UR: "Underwater Right",
 };
 
 export function isPhase(value: string): value is Phase {
