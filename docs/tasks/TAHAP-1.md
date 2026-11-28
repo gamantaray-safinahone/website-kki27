@@ -122,7 +122,7 @@ Urutan: bagian 0 (lintasan contoh, cukup sekali) → 1 (run uji) → 2 (telemetr
 - [ ] Setelah bagian 2: kanan atas **Boat: Online**, **Feed: Live** (bukan Polling), "Last data" 0–2 s.
 - [ ] Peta menyesuaikan ke grid 6 × 6; terlihat 10 pasang buoy (merah di kanan, hijau di kiri), kotak imaging biru dan hijau, Start, dan Finish.
 - [ ] Bagian 2 diulang: ikon kapal bergerak halus dan berputar sesuai arah; jejak oranye bertambah; garis putus-putus menunjukkan COG.
-- [ ] Bagian 3a sampai 3i: fase berubah dari Pending ke Active ke Done, "Gate n / 10" bertambah setiap 3d dijalankan, timer berjalan sejak 3b (Start aktif) dan berhenti di 3i.
+- [ ] Bagian 3a sampai 3i: fase berubah dari Pending ke Active ke Done, timer berjalan sejak 3b (Start aktif) dan berhenti di 3i.
 - [ ] Setelah bagian 4: badge **Run ended**.
 - [ ] Mode gelap bisa dinyalakan dan dimatikan.
 

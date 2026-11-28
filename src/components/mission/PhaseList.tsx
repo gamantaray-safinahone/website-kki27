@@ -59,7 +59,7 @@ export function PhaseList() {
                   }`}
                 />
               )}
-              {/* Di layar tinggi detail ("Gate 4 / 10") turun ke baris kedua supaya tidak terpotong. */}
+              {/* Di layar tinggi detail ("Slot SR") turun ke baris kedua supaya tidak terpotong. */}
               <span className="min-w-0 flex-1 truncate leading-tight font-medium">
                 {PHASE_LABELS[phase]}
                 {detail && (

@@ -7,8 +7,7 @@ import { useState } from "react";
 import { signInAdmin } from "@/lib/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-// Login admin (email + password). Tidak ada pendaftaran: akun dibuat manual
-// di dashboard Supabase dan didaftarkan di app_admins.
+// Login admin (email + password).
 export function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);

@@ -91,8 +91,6 @@ export default function CourseEditorMap({
     });
   }, [map, onMapReady]);
 
-  // Pusatkan ke grid (bila koordinat pusat ada) atau ke objek lintasan,
-  // hanya saat lintasan berganti, supaya drag tidak menggeser peta.
   const lintasan = course?.lintasan ?? null;
   useEffect(() => {
     if (!map || !course) return;

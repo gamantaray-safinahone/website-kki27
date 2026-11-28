@@ -55,7 +55,7 @@ Ganti tampilan komponen Tahap 1 (sumber data tetap `useLive`). Hapus komponen la
 - 7 item bernomor 01–07, urutan dari `app_state.phase_order`.
 - Item aktif: latar lime. Item selesai: ikon centang + jam selesai. Pending: normal, **tidak diredupkan**.
 - Pojok kanan header menampilkan `RunTimer` (pengganti "Tahap 1" yang dulu di-hardcode).
-- Detail gerbang "Gate 4 / 10" tetap ada.
+- Detail fase (misalnya "Slot SR") tetap ada.
 
 **Real-Time Map** (`components/map/`)
 - Header panel: segmented "Lintasan A | Lintasan B". Pilihan ini hanya mengganti tampilan lokal dan default-nya lintasan run yang diikuti.

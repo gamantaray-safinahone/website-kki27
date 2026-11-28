@@ -33,9 +33,8 @@ insert into public.mission_events (run_id, t, phase, status, detail) values
   ('00000000-0000-4000-8000-000000000102', now() - interval '5 minutes',  'preparation',       'done',   null),
   ('00000000-0000-4000-8000-000000000102', now() - interval '5 minutes',  'start',             'active', null),
   ('00000000-0000-4000-8000-000000000102', now() - interval '4 minutes',  'start',             'done',   null),
-  ('00000000-0000-4000-8000-000000000102', now() - interval '4 minutes',  'floating_ball_set', 'active', '{"gate": 1, "total": 10}'),
-  ('00000000-0000-4000-8000-000000000102', now() - interval '3 minutes',  'floating_ball_set', 'active', '{"gate": 7, "total": 10}'),
-  ('00000000-0000-4000-8000-000000000102', now() - interval '2 minutes',  'floating_ball_set', 'done',   '{"gate": 10, "total": 10}'),
+  ('00000000-0000-4000-8000-000000000102', now() - interval '4 minutes',  'floating_ball_set', 'active', null),
+  ('00000000-0000-4000-8000-000000000102', now() - interval '2 minutes',  'floating_ball_set', 'done',   null),
   ('00000000-0000-4000-8000-000000000102', now() - interval '2 minutes',  'surface_imaging',   'active', null),
   ('00000000-0000-4000-8000-000000000102', now() - interval '2 minutes',  'underwater_imaging','active', null),
   ('00000000-0000-4000-8000-000000000102', now() - interval '1 minute',   'surface_imaging',   'done',   '{"slot": "SR"}');

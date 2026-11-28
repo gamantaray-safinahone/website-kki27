@@ -3,7 +3,6 @@
 /* Tema dipasang next-themes sebagai kelas .dark / .light di <html>. Default gelap. */
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant light (&:where(.light, .light *));
-
 @custom-variant tall (@media (min-height: 50rem));
 
 :root {
@@ -84,7 +83,7 @@ body {
   color: var(--kapur-muda);
 }
 
-/* Scrollbar tipis seperti 2026 */
+/* Scrollbar tipis*/
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -104,9 +103,7 @@ body {
   scrollbar-color: rgba(107, 132, 120, 0.4) transparent;
 }
 
-/* ---- Peta ----
-   Peta tetap berlatar terang (tile OSM) supaya kontras dengan panel gelap.
-   Selektor diawali .leaflet-container supaya menang dari leaflet.css. */
+/* ---- Peta ---- */
 .leaflet-container {
   background: #dfeccf;
   font-family: inherit;

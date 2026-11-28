@@ -1,6 +1,6 @@
 # Kontrak data kapal → Supabase
 
-Dokumen ini dipakai bersama oleh tim web dan tim ROS. Satu node di NUC (`web_bridge`) menulis run, telemetri, dan event; satu node di Pi (`capture_uploader`) menulis foto. Website tidak pernah mengirim perintah ke kapal, dan kapal tidak membaca konfigurasi dari website.
+Dokumen ini dipakai bersama oleh tim web dan tim ROS. Satu node di NUC (`web_bridge`) menulis run, telemetri, dan event; foto ditulis oleh satu node saja: `nuc_imaging` di NUC (launch `imaging_source:=nuc`, bila kapal tanpa Pi) atau `capture_uploader` di Pi (`imaging_source:=pi`). Website tidak pernah mengirim perintah ke kapal, dan kapal tidak membaca konfigurasi dari website.
 
 Skema database lengkap: `supabase/migrations/20261127000000_init.sql`.
 
@@ -11,7 +11,7 @@ Skema database lengkap: `supabase/migrations/20261127000000_init.sql`.
 | `runs` (buat, akhiri) | NUC `web_bridge` | Saat misi diluncurkan; saat finish, abort, atau retry | `id` (UUID v4 dari NUC) |
 | `telemetry` | NUC `web_bridge` | 1 sampel per detik | `(run_id, t)` |
 | `mission_events` | NUC `web_bridge`, dari state machine | Saat status fase berubah | `(run_id, phase, t)` |
-| File di bucket `captures` + tabel `captures` | Pi `capture_uploader` | Setiap foto hasil imaging | `storage_path` |
+| File di bucket `captures` + tabel `captures` | NUC `nuc_imaging` atau Pi `capture_uploader` (salah satu) | Setiap foto hasil imaging | `storage_path` |
 | `runs` (label, catatan), `app_state`, `courses`, `course_items`, `captures.hidden` | Admin web | Manual | — |
 
 Kunci idempoten membuat kiriman ulang (retry) aman: baris yang sama tidak akan tercatat dua kali.
@@ -35,7 +35,7 @@ Kunci idempoten membuat kiriman ulang (retry) aman: baris yang sama tidak akan t
 ## Siklus run
 
 1. Operator meluncurkan misi dengan parameter `lintasan:=A` (atau `B`). Saat state machine masuk `preparation`, ia memanggil service `/web_bridge/start_run`.
-2. Bridge membuat UUID v4, menyimpannya di `~/.safinah/current_run.json`, mengirim baris `runs` (`status: live`, `source: boat`), lalu menerbitkan `/safinah/run` dengan QoS transient local untuk Pi. Isinya string kosong bila tidak ada run.
+2. Bridge menolak `start_run` sampai lintasan diterima dari `/gamantaray/lintasan` (salinan lintasan di `runs.course_snapshot` hanya dibuat saat insert), lalu membuat UUID v4, menyimpannya di `~/.safinah/current_run.json`, mengirim baris `runs` (`status: live`, `source: boat`), lalu menerbitkan `/safinah/run` dengan QoS transient local untuk Pi. Isinya string kosong bila tidak ada run.
 3. Telemetri dikirim sejak `preparation`, supaya juri bisa melihat GPS lock di dermaga.
 4. Finish: run diakhiri dengan `status: ended`, `end_reason: finish`. Retry dari start: run lama `status: aborted`, `end_reason: retry`, lalu `start_run` lagi. Run yang gagal karena alasan lain: `status: aborted` dengan `end_reason` singkat, misalnya `manual` dari `ros2 service call /web_bridge/abort_run std_srvs/srv/Trigger` di NUC.
 5. Bila NUC restart di tengah run, bridge melanjutkan run dari file selama statusnya masih `live` dan umurnya di bawah 25 menit. Bila lebih tua, run itu ditutup `status: aborted`, `end_reason: timeout`.
@@ -104,7 +104,7 @@ Contoh satu sampel:
 - Fase (`phase`): `preparation`, `start`, `floating_ball_set`, `surface_imaging`, `underwater_imaging`, `docking`, `finish`.
 - Status (`status`): `pending`, `active`, atau `done`. Fase yang belum punya event ditampilkan website sebagai pending.
 - Dikirim hanya saat status fase berubah, ditambah `preparation: active` saat run dibuat.
-- `detail` untuk `floating_ball_set`: `{"gate": 4, "total": 10}` setiap melewati gerbang. Untuk imaging: `{"slot": "SR", "photo": "<storage_path>"}`. Fase lain boleh `null`.
+- `detail` untuk imaging: `{"slot": "SR"}`. Fase lain boleh `null`. Hitungan gerbang tidak dilaporkan.
 - Fase imaging menjadi `done` saat state machine selesai memotret. Sudah atau belumnya foto sampai terlihat di panel foto website, bukan dari status fase.
 - Run yang gagal dicatat lewat `runs.status = aborted`, bukan lewat status fase.
 
@@ -114,29 +114,36 @@ Contoh:
 {
   "run_id": "6f1c2a4e-8b0d-4c1e-9f7a-2d3b4c5e6f70",
   "t": "2027-09-15T02:31:40.000Z",
-  "phase": "floating_ball_set",
-  "status": "active",
-  "detail": { "gate": 4, "total": 10 }
+  "phase": "surface_imaging",
+  "status": "done",
+  "detail": { "slot": "SR" }
 }
 ```
 
 ## Foto
 
-1. Pi menyimpan foto asli di SD card (`~/captures/<run_id>/<slot>/`) sebagai cadangan bukti.
-2. Pi membuat versi web (sisi panjang 1280 px, JPEG kualitas 80, target di bawah 300 KB) dan thumbnail (320 px, kualitas 70). Batas bucket 4 MB per file, hanya JPEG/PNG.
+1. Penulis foto menyimpan foto asli di disk (`~/captures/<run_id>/<slot>/`) sebagai cadangan bukti.
+2. Penulis foto membuat versi web (sisi panjang 1280 px, JPEG kualitas 80, target di bawah 300 KB) dan thumbnail (320 px, kualitas 70). Batas bucket 4 MB per file, hanya JPEG/PNG.
 3. Nama file: `runs/<run_id>/<slot>/<slot>_<YYYYMMDDTHHMMSSmmm>Z.jpg`, thumbnail berakhiran `_thumb.jpg`. Contoh: `runs/6f1c…/UL/UL_20270915T023210123Z.jpg`.
-4. Untuk slot underwater (UL/UR), Pi juga mengunggah foto permukaan yang diambil pada saat yang sama, di folder yang sama, dengan nama `..._surface.jpg` dan thumbnail `..._surface_thumb.jpg`. Contoh: `runs/6f1c…/UL/UL_20270915T023210123Z_surface.jpg`. Path-nya diisi di kolom `surface_path` dan `surface_thumb_path`. Slot surface (SL/SR) membiarkan kedua kolom null; database menolak bila diisi.
+4. Untuk slot underwater (UL/UR), penulis foto juga mengunggah foto permukaan yang diambil pada saat yang sama, di folder yang sama, dengan nama `..._surface.jpg` dan thumbnail `..._surface_thumb.jpg`. Contoh: `runs/6f1c…/UL/UL_20270915T023210123Z_surface.jpg`. Path-nya diisi di kolom `surface_path` dan `surface_thumb_path`. Slot surface (SL/SR) membiarkan kedua kolom null; database menolak bila diisi.
 5. Unggah semua file dulu (termasuk foto permukaan untuk slot underwater), baru insert baris `captures`. Database menolak path di luar folder `runs/<run_id>/<slot>/`.
 6. Posisi, SOG, COG, dan heading diambil dari sampel terakhir. `detection` berisi `[{"cls": "green_box", "conf": 0.91, "bbox": [x, y, w, h]}]` relatif 0–1 terhadap foto web. `meta` berisi `width`, `height`, `camera`.
 7. Antrean foto disimpan di disk dan dicoba terus sampai berhasil, karena foto menentukan nilai imaging.
 
 Slot per lintasan: A memakai UL + SR, B memakai SL + UR (S = surface, U = underwater, L/R = kiri/kanan).
 
+Pemetaan kamera `nuc_imaging` (hanya kamera atas depan yang mendeteksi kotak; kamera bawah ikut memotret saat kotak biru dipotret, dan foto atas saat itu menjadi foto permukaan pasangannya):
+
+| Lintasan | Kotak hijau (kamera atas) | Kotak biru (kamera atas) | Kamera bawah |
+| --- | --- | --- | --- |
+| A | SR | SL | UL (kiri) |
+| B | SL | SR | UR (kanan) |
+
 ## Antrean dan retry
 
 - Sampel telemetri terbaru dikirim lebih dulu setiap detik; backlog dikirim terpisah dalam batch maksimal 100 baris. Dashboard langsung live lagi setelah sinyal pulih, jejak terisi menyusul.
-- Timeout 5 detik per request. Untuk gangguan jaringan, 5xx, atau 429: coba lagi dengan jeda 1, 2, 4, 8, lalu paling lama 15 detik.
-- 400 atau 422 berarti data salah: catat isi respons, buang batch itu, lanjut. 401 atau 403 berarti key salah: jangan buang data, berhenti kirim, tulis error di log ROS.
+- Timeout 5 detik per request (unggah foto 15 detik). Untuk gangguan jaringan, 408, 429, atau 5xx: coba lagi dengan jeda 1, 2, 4, 8, lalu paling lama 15 detik.
+- 400 atau 422 berarti data salah: catat isi respons, buang batch itu, lanjut. Data yang tidak bisa dijadikan JSON (misalnya NaN) diperlakukan sama tanpa dikirim. 401 atau 403 berarti key salah: jangan buang data, berhenti kirim, tulis error di log ROS.
 - Validasi di kapal dengan aturan yang sama seperti database (lat −90..90, lon −180..180, sudut dinormalkan ke [0, 360), NaN menjadi null), supaya satu nilai salah tidak menggagalkan satu batch.
 - Telemetri boleh dibuang bila antrean lebih dari 1 jam. Event, status run, dan foto disimpan di disk dan tidak pernah dibuang.
 - Setelah kiriman berhasil, hapus sampel dari antrean berdasarkan objeknya, bukan dengan `pop()`. Selama menunggu jaringan, sampel baru bisa sudah masuk ke ujung antrean, dan `pop()` akan membuang sampel yang belum terkirim.
@@ -153,7 +160,7 @@ Chrony di NUC (NTP lewat 4G) dan Pi (sinkron ke NUC lewat LAN), target selisih d
 
 ## Contoh kode
 
-Python (dipakai `web_bridge` dan `capture_uploader`):
+Python (dipakai `web_bridge`, `nuc_imaging`, dan `capture_uploader`):
 
 ```python
 import json

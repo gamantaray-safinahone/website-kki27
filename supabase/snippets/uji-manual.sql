@@ -188,28 +188,17 @@ insert into public.mission_events (run_id, t, phase, status) values
   ('00000000-0000-4000-8000-000000000101', now(), 'start', 'active');
 
 -- 3c. Start selesai, masuk gerbang
---     Di dashboard: Start = Done, Floating Ball Set = Active, "Gate 0 / 10".
+--     Di dashboard: Start = Done, Floating Ball Set = Active.
 insert into public.mission_events (run_id, t, phase, status, detail) values
   ('00000000-0000-4000-8000-000000000101', now(), 'start', 'done', null),
-  ('00000000-0000-4000-8000-000000000101', now(), 'floating_ball_set', 'active',
-   '{"gate": 0, "total": 10}');
+  ('00000000-0000-4000-8000-000000000101', now(), 'floating_ball_set', 'active', null);
 
--- 3d. Lewat satu gerbang (boleh dijalankan berulang kali, maksimal gate 10)
---     Di dashboard: "Gate n / 10" bertambah satu setiap kali.
-insert into public.mission_events (run_id, t, phase, status, detail)
-select '00000000-0000-4000-8000-000000000101', now(), 'floating_ball_set', 'active',
-       jsonb_build_object(
-         'gate', least(coalesce(max((detail ->> 'gate')::int), 0) + 1, 10),
-         'total', 10)
-from public.mission_events
-where run_id = '00000000-0000-4000-8000-000000000101'
-  and phase = 'floating_ball_set';
+-- 3d. (Dihapus: hitungan gerbang tidak dilaporkan kapal.)
 
 -- 3e. Semua gerbang selesai, underwater imaging aktif
 --     Di dashboard: Floating Ball Set = Done, Underwater Imaging = Active.
 insert into public.mission_events (run_id, t, phase, status, detail) values
-  ('00000000-0000-4000-8000-000000000101', now(), 'floating_ball_set', 'done',
-   '{"gate": 10, "total": 10}'),
+  ('00000000-0000-4000-8000-000000000101', now(), 'floating_ball_set', 'done', null),
   ('00000000-0000-4000-8000-000000000101', now(), 'underwater_imaging', 'active', null);
 
 -- 3f. Underwater imaging selesai, surface imaging aktif

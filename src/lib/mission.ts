@@ -78,15 +78,10 @@ export function latestPhaseStates(
   return result;
 }
 
-// Teks detail singkat, misalnya "Gate 4 / 10".
+// Teks detail singkat, misalnya "Slot SR".
 export function describeDetail(phase: Phase, detail: unknown): string | null {
   if (!detail || typeof detail !== "object") return null;
   const d = detail as Record<string, unknown>;
-  if (phase === "floating_ball_set" && typeof d.gate === "number") {
-    return typeof d.total === "number"
-      ? `Gate ${d.gate} / ${d.total}`
-      : `Gate ${d.gate}`;
-  }
   if (typeof d.slot === "string") return `Slot ${d.slot}`;
   return null;
 }

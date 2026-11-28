@@ -20,7 +20,8 @@ export function CaptureCard({
   code: Slot;
   label: string;
   captures: Capture[]; // urut terbaru dulu
-  border: "green" | "blue";
+  // none = bingkai dipegang pembungkus (pasangan surface + underwater)
+  border: "green" | "none";
   withSurface?: boolean;
   onOpen: (id: number) => void;
 }) {
@@ -36,7 +37,7 @@ export function CaptureCard({
     <article
       aria-label={`${label} camera`}
       className={`bg-surface tall:p-2 flex min-h-0 flex-col border p-1.5 xl:flex-1 ${
-        border === "green" ? "border-green-500" : "border-blue-500"
+        border === "green" ? "border-green-500" : "border-transparent"
       }`}
     >
       <div className="light:bg-slate-200 relative min-h-44 flex-1 overflow-hidden bg-black/30 xl:min-h-0">

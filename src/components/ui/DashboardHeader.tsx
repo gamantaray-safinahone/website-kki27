@@ -4,10 +4,11 @@ import { WibClock } from "@/components/status/WibClock";
 
 import { ThemeToggle } from "./ThemeToggle";
 
-// header: logo + judul di kiri; status koneksi, tema, dan jam WIB di kanan.
+// header: logo + judul di kiri; motto tim di tengah; status koneksi, tema,
+// dan jam WIB di kanan. Di HP motto turun ke baris paling bawah.
 export function DashboardHeader() {
   return (
-    <header className="border-border tall:pb-4 flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b pb-3">
+    <header className="border-border tall:pb-4 relative flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b pb-3">
       <div className="tall:gap-5 flex items-center gap-4">
         <img
           src="/logo.png"
@@ -20,6 +21,12 @@ export function DashboardHeader() {
           Safinah One
         </h1>
       </div>
+
+      {/* Di layar lebar diletakkan tepat di tengah header (absolute), tidak
+          ikut bergeser walau lebar sisi kiri dan kanan berbeda. */}
+      <p className="text-sage-dingin tall:text-base order-last w-full text-center text-sm font-medium tracking-wide italic lg:absolute lg:top-1/2 lg:left-1/2 lg:w-auto lg:-translate-x-1/2 lg:-translate-y-1/2">
+        Doa Ibu Bersama Tuhan
+      </p>
 
       <div className="flex items-center gap-3 sm:gap-6">
         <ConnectionBadge />

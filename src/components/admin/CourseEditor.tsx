@@ -17,7 +17,6 @@ import { CourseSettingsForm } from "./CourseSettingsForm";
 import { StatusMessage, type ActionResult } from "./StatusMessage";
 import { buttonClass, inputClass, sectionClass } from "./styles";
 
-// Leaflet butuh `window`: peta editor hanya dimuat di browser.
 const CourseEditorMap = dynamic(() => import("./CourseEditorMap"), {
   ssr: false,
   loading: () => (

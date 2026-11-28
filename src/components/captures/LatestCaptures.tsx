@@ -26,7 +26,7 @@ const FALLBACK_SLOTS: Record<string, Slot[]> = {
 // Camera Feeds: 3 panel untuk lintasan yang sedang dilihat (sama dengan peta).
 // Urutan dari atas: slot surface lintasan, slot surface lainnya, slot underwater
 // lintasan beserta foto permukaannya. A = SR, SL, UL; B = SL, SR, UR.
-// Border: surface lintasan hijau; surface lainnya dan underwater biru.
+// Border: surface lintasan hijau; surface lainnya + underwater dalam satu bingkai biru.
 export function LatestCaptures() {
   const captures = useLive((s) => s.captures);
   const [lintasan] = useViewLintasan();
@@ -51,11 +51,17 @@ export function LatestCaptures() {
   const otherSurface: Slot = surface === "SL" ? "SR" : "SL";
   const underwater = usedSlots.find((slot) => slot.startsWith("U")) ?? "UL";
 
-  const panels: { slot: Slot; withSurface: boolean }[] = [
-    { slot: surface, withSurface: false },
-    { slot: otherSurface, withSurface: false },
-    { slot: underwater, withSurface: true },
-  ];
+  const card = (slot: Slot, withSurface: boolean, border: "green" | "none") => (
+    <CaptureCard
+      key={slot}
+      code={slot}
+      label={SLOT_LABELS[slot]}
+      captures={bySlot[slot]}
+      border={border}
+      withSurface={withSurface}
+      onOpen={(id) => setViewer({ slot, withSurface, id })}
+    />
+  );
 
   return (
     <Card
@@ -69,17 +75,12 @@ export function LatestCaptures() {
       }
     >
       <div className="bg-foreground/10 flex min-h-0 flex-1 flex-col gap-px">
-        {panels.map(({ slot, withSurface }) => (
-          <CaptureCard
-            key={slot}
-            code={slot}
-            label={SLOT_LABELS[slot]}
-            captures={bySlot[slot]}
-            border={slot === surface ? "green" : "blue"}
-            withSurface={withSurface}
-            onOpen={(id) => setViewer({ slot, withSurface, id })}
-          />
-        ))}
+        {card(surface, false, "green")}
+        {/* Surface lainnya + underwater satu pasangan: satu bingkai biru. */}
+        <div className="flex min-h-0 flex-col gap-px border border-blue-500 xl:flex-2">
+          {card(otherSurface, false, "none")}
+          {card(underwater, true, "none")}
+        </div>
       </div>
 
       {viewer && (

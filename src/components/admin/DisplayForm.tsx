@@ -13,8 +13,6 @@ import { buttonClass, primaryButtonClass, sectionClass } from "./styles";
 
 // Form lintasan default dan urutan fase (diisi dari app_state saat ini).
 export function DisplayForm({ appState }: { appState: AppState }) {
-  // Pilih objek store apa adanya; array baru dibuat di useMemo supaya
-  // selector Zustand tidak memicu render tanpa henti.
   const courseMap = useLive((s) => s.courses);
   const courses = useMemo(() => Object.keys(courseMap).sort(), [courseMap]);
   const [lintasan, setLintasan] = useState(appState.active_lintasan ?? "A");
